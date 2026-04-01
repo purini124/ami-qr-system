@@ -1,7 +1,3 @@
-// ─────────────────────────────────────────────────────────────────────────────
-// ADD YOUR FULL index.js CODE HERE
-// ─────────────────────────────────────────────────────────────────────────────
-// Paste your complete app code into this file, then push to GitHub.
 const express = require('express');
 const QRCode = require('qrcode');
 const bodyParser = require('body-parser');
@@ -44,6 +40,10 @@ async function saveAssets(assets) {
   catch (e) { console.error('Save error:', e); }
 }
 
+// ── QR PLAIN TEXT CONTENT ─────────────────────────────────────────────────────
+function buildQrContent(asset) {
+  return `COMPANY:${asset.companyName},PARTNO:${asset.partNo},LOT:${asset.lotNo},QTY:${asset.quantity},PACKER:${asset.packer}`;
+}
 let assets;
 loadAssets().then(loaded => { assets = loaded; console.log(`Loaded ${assets.size} assets`); });
 
@@ -135,6 +135,7 @@ td a.link:hover { text-decoration: underline; }
 
 .alert { padding: 10px 14px; border-radius: 6px; font-size: 13px; margin-bottom: 16px; }
 .alert-error { background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; }
+.alert-info { background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; }
 
 .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .detail-label { font-size: 11px; font-weight: 600; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 3px; }
@@ -253,6 +254,29 @@ hr { border: none; border-top: 1px solid #e5e7eb; margin: 20px 0; }
 .ami-wo-cell { flex: 1; border-right: 1.5px solid #111; padding: 10px 14px; display: flex; flex-direction: column; justify-content: space-between; }
 .ami-wo-cell .wo-label { font-size: 9px; font-weight: bold; letter-spacing: 0.1em; color: #555; margin-bottom: 2px; }
 .ami-wo-cell .wo-value { font-size: 11px; font-weight: bold; letter-spacing: 0.04em; }
+
+/* Scanner info banner */
+.scanner-info-banner {
+  background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px;
+  padding: 10px 14px; font-size: 12px; color: #1d4ed8; margin-bottom: 16px;
+  display: flex; align-items: center; gap: 8px;
+}
+.scanner-info-banner svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+/* Scan page specific */
+.scan-result-box {
+  background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px;
+  padding: 12px 14px; margin-top: 10px;
+}
+.scan-result-box pre {
+  font-family: 'Courier New', monospace; font-size: 11px;
+  white-space: pre-wrap; word-break: break-all;
+  max-height: 220px; overflow-y: auto;
+  color: #111; line-height: 1.6;
+}
+.scan-status { font-size: 13px; color: #64748b; text-align: center; padding: 6px 0; }
+.scan-status.success { color: #16a34a; font-weight: 600; }
+.scan-status.error { color: #dc2626; }
 
 @media (max-width: 768px) {
   .sidebar { display: none; }
@@ -511,17 +535,14 @@ function printModalScript(qrDataUrl, assetJSON) {
       'LetterP':'size: Letter portrait'
     }[state.pageSize] || 'size: A4 landscape';
 
-    // Build labels HTML
     var labelsHTML = '';
     for (var i = 0; i < totalCopies; i++) {
       labelsHTML += buildLabelHTML(ASSET, QR_DATA_URL, state.showQR, state.showCompany, borderStyle, innerBorder);
     }
 
-    // Remove old print style if any
     var oldStyle = document.getElementById('dynamicPrintStyle');
     if (oldStyle) oldStyle.remove();
 
-    // Inject print CSS
     var styleEl = document.createElement('style');
     styleEl.id = 'dynamicPrintStyle';
     styleEl.innerHTML = [
@@ -548,7 +569,6 @@ function printModalScript(qrDataUrl, assetJSON) {
     ].join(' ');
     document.head.appendChild(styleEl);
 
-    // Get or create the single printSheet (placed at body level)
     var sheet = document.getElementById('printSheet');
     if (!sheet) {
       sheet = document.createElement('div');
@@ -556,14 +576,11 @@ function printModalScript(qrDataUrl, assetJSON) {
       document.body.appendChild(sheet);
     }
 
-    // Populate
     sheet.innerHTML = labelsHTML;
     sheet.style.cssText = 'display:none;';
 
-    // Close modal
     document.getElementById('printModalOverlay').classList.remove('open');
 
-    // Show, render, print
     setTimeout(function() {
       sheet.style.display = 'grid';
       sheet.style.gridTemplateColumns = 'repeat(' + state.cols + ',1fr)';
@@ -608,6 +625,7 @@ const I = {
   trash: `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>`,
   eye: `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>`,
   label: `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>`,
+  info: `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,
 };
 
 const SIDEBAR_HTML = (active) => `
@@ -654,13 +672,19 @@ const MOB_NAV = (active) => `
   </div>
 </div>`;
 
-// NOTE: No #printSheet here — it's created dynamically by the print script
 const LAYOUT = (content, active = '') => `
 ${SIDEBAR_HTML(active)}
 ${MOB_HEADER()}
 ${MOB_NAV(active)}
 <main class="main">${content}</main>
 </body></html>`;
+
+// ── SCANNER INFO BANNER ───────────────────────────────────────────────────────
+const SCANNER_BANNER = `
+<div class="scanner-info-banner">
+  <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+  <span><strong>Scanner Ready:</strong> This QR encodes full label details — scan with your barcode scanner and all fields appear directly in Notepad or any text field.</span>
+</div>`;
 
 // ── ROUTES ─────────────────────────────────────────────────────────────────────
 
@@ -926,12 +950,13 @@ app.post('/generate', async (req, res) => {
   assets.set(assetKey, asset);
   await saveAssets(assets);
 
-  const url = `${getBaseUrl(req)}/asset/${assetKey}`;
+  const qrText = buildQrContent(asset);
+
   try {
-    const qrDataUrl = await QRCode.toDataURL(url, {
+    const qrDataUrl = await QRCode.toDataURL(qrText, {
       width: 300, margin: 1,
       color: { dark: '#000000', light: '#ffffff' },
-      errorCorrectionLevel: 'H'
+      errorCorrectionLevel: 'M'
     });
 
     res.send(`${HEAD('Label Created')}<body>
@@ -946,6 +971,8 @@ app.post('/generate', async (req, res) => {
           <a href="/qr/${assetKey}/download" class="btn btn-primary">${I.download} Download QR</a>
         </div>
       </div>
+
+      ${SCANNER_BANNER}
 
       <div style="overflow-x:auto;">
         <div class="ami-label">
@@ -1054,9 +1081,9 @@ app.get('/labels', async (req, res) => {
   if (!isAuthenticated(req)) return res.redirect('/');
   let cards = '';
   for (const [key, a] of assets) {
-    const url = `${getBaseUrl(req)}/asset/${key}`;
+    const qrText = buildQrContent(a);
     try {
-      const qrDataUrl = await QRCode.toDataURL(url, { width: 200, margin: 1, errorCorrectionLevel: 'H' });
+      const qrDataUrl = await QRCode.toDataURL(qrText, { width: 200, margin: 1, errorCorrectionLevel: 'M' });
       const monthNum = String(a.month || '03').padStart(2, '0');
       cards += `
       <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;">
@@ -1123,6 +1150,7 @@ app.get('/labels', async (req, res) => {
       </div>
       <a href="/generate-form" class="btn btn-primary">${I.plus} New Label</a>
     </div>
+    ${SCANNER_BANNER}
     ${cards
       ? `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;">${cards}</div>`
       : `<div class="card"><div class="empty">${I.label}<p>No labels yet. Generate your first label.</p><a href="/generate-form" class="btn btn-primary">Create First Label</a></div></div>`}
@@ -1135,8 +1163,8 @@ app.get('/print-label/:id', async (req, res) => {
   const asset = assets.get(req.params.id);
   if (!asset) return res.status(404).send('Not found');
 
-  const url = `${getBaseUrl(req)}/asset/${req.params.id}`;
-  const qrDataUrl = await QRCode.toDataURL(url, { width: 300, margin: 1, errorCorrectionLevel: 'H' });
+  const qrText = buildQrContent(asset);
+  const qrDataUrl = await QRCode.toDataURL(qrText, { width: 300, margin: 1, errorCorrectionLevel: 'M' });
 
   res.send(`${HEAD('Print &mdash; ' + asset.partName)}<body>
   ${LAYOUT(`
@@ -1150,6 +1178,8 @@ app.get('/print-label/:id', async (req, res) => {
         <a href="/labels" class="btn btn-secondary">&larr; Back to Labels</a>
       </div>
     </div>
+
+    ${SCANNER_BANNER}
 
     <div style="overflow-x:auto;">
       <div class="ami-label">
@@ -1206,15 +1236,16 @@ app.get('/qr/all', async (req, res) => {
   if (!isAuthenticated(req)) return res.redirect('/');
   let cards = '';
   for (const [key, a] of assets) {
-    const url = `${getBaseUrl(req)}/asset/${key}`;
+    const qrText = buildQrContent(a);
     try {
-      const qrDataUrl = await QRCode.toDataURL(url, { width: 200, margin: 2, errorCorrectionLevel: 'H' });
+      const qrDataUrl = await QRCode.toDataURL(qrText, { width: 200, margin: 2, errorCorrectionLevel: 'M' });
       cards += `<div class="card" style="margin-bottom:0;text-align:center;padding:20px;">
         <div style="font-weight:600;color:#111;font-size:13px;margin-bottom:2px;">${a.partName}</div>
         <div style="font-size:11px;color:#9ca3af;margin-bottom:14px;font-family:monospace;">${a.partNo} &middot; ${a.lotNo}</div>
         <div class="qr-wrap" style="display:inline-block;margin-bottom:14px;">
           <img src="${qrDataUrl}" style="width:130px;height:130px;display:block;">
         </div>
+        <div style="font-size:11px;color:#3b82f6;margin-bottom:10px;font-weight:500;">&#x2713; Encodes full label text</div>
         <div style="display:flex;gap:8px;justify-content:center;">
           <a href="/qr/${key}/download" class="btn btn-primary btn-sm">${I.download}</a>
           <a href="/asset/${key}" class="btn btn-secondary btn-sm">${I.eye}</a>
@@ -1231,6 +1262,7 @@ app.get('/qr/all', async (req, res) => {
         <p class="page-sub">${assets.size} label${assets.size !== 1 ? 's' : ''}</p>
       </div>
     </div>
+    ${SCANNER_BANNER}
     ${cards
       ? `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:16px;">${cards}</div>`
       : `<div class="card"><div class="empty">${I.qr}<p>No QR codes yet.</p><a href="/generate-form" class="btn btn-primary">Create First Label</a></div></div>`}
@@ -1255,8 +1287,8 @@ app.get('/asset/:id', async (req, res) => {
     await saveAssets(assets);
   }
 
-  const qrUrl = `${getBaseUrl(req)}/asset/${req.params.id}`;
-  const qrDataUrl = await QRCode.toDataURL(qrUrl, { width: 200, margin: 2, errorCorrectionLevel: 'H' });
+  const qrText = buildQrContent(asset);
+  const qrDataUrl = await QRCode.toDataURL(qrText, { width: 200, margin: 2, errorCorrectionLevel: 'M' });
   const scans = asset.scanHistory?.length || 0;
   const monthNum = String(asset.month || '03').padStart(2, '0');
   const woNum = asset.woNo || '&mdash;';
@@ -1267,7 +1299,7 @@ app.get('/asset/:id', async (req, res) => {
   </tr>`).join('');
 
   if (isAdmin) {
-    const printQrDataUrl = await QRCode.toDataURL(qrUrl, { width: 300, margin: 1, errorCorrectionLevel: 'H' });
+    const printQrDataUrl = await QRCode.toDataURL(qrText, { width: 300, margin: 1, errorCorrectionLevel: 'M' });
     return res.send(`${HEAD(asset.partName)}<body>
     ${LAYOUT(`
       <div class="page-header">
@@ -1281,6 +1313,7 @@ app.get('/asset/:id', async (req, res) => {
           <a href="/delete/${req.params.id}" onclick="return confirm('Delete ${asset.partName}?')" class="btn btn-danger">${I.trash} Delete</a>
         </div>
       </div>
+      ${SCANNER_BANNER}
       <div class="grid-aside">
         <div>
           <div class="card">
@@ -1354,7 +1387,8 @@ app.get('/asset/:id', async (req, res) => {
               <div class="qr-wrap" style="margin:0 auto 14px;display:inline-block;">
                 <img src="${qrDataUrl}" style="width:160px;height:160px;display:block;">
               </div>
-              <p style="font-size:11px;color:#94a3b8;margin-bottom:14px;">Scan to view part details on any device</p>
+              <p style="font-size:11px;color:#94a3b8;margin-bottom:6px;">Scan with barcode scanner</p>
+              <p style="font-size:11px;color:#3b82f6;font-weight:500;margin-bottom:14px;">&#x2713; Outputs full label text to Notepad</p>
               <a href="/qr/${req.params.id}/download" class="btn btn-primary btn-block btn-sm">${I.download} Download PNG</a>
             </div>
           </div>
@@ -1367,7 +1401,7 @@ app.get('/asset/:id', async (req, res) => {
   }
 
   // ── Public scan view ──────────────────────────────────────────────────────
-  const printQrDataUrl = await QRCode.toDataURL(qrUrl, { width: 300, margin: 1, errorCorrectionLevel: 'H' });
+  const printQrDataUrl = await QRCode.toDataURL(qrText, { width: 300, margin: 1, errorCorrectionLevel: 'M' });
 
   const PUBLIC_CSS = `
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1408,7 +1442,6 @@ app.get('/asset/:id', async (req, res) => {
   .ami-wo-cell { flex: 1; padding: 12px 16px; display: flex; flex-direction: column; justify-content: center; gap: 4px; }
   .wo-label { font-size: 9px; font-weight: bold; letter-spacing: 0.1em; color: #555; }
   .wo-value { font-size: 13px; font-weight: bold; font-family: 'Courier New', monospace; }
-  /* Print modal styles */
   .print-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 16px; }
   .print-modal-overlay.open { display: flex; }
   .print-modal { background: #fff; border-radius: 12px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
@@ -1510,7 +1543,6 @@ app.get('/asset/:id', async (req, res) => {
     <p style="font-size:12px;color:#94a3b8;margin-top:8px;text-align:center;">Tap to choose layout, copies &amp; more</p>
   </div>
 
-  <!-- Print Modal (reuse same component) -->
   <div class="print-modal-overlay" id="printModalOverlay">
     <div class="print-modal">
       <div class="print-modal-header">
@@ -1596,8 +1628,8 @@ app.get('/qr/:id', async (req, res) => {
   if (!isAuthenticated(req)) return res.redirect('/');
   const asset = assets.get(req.params.id);
   if (!asset) return res.status(404).send('Not found');
-  const url = `${getBaseUrl(req)}/asset/${req.params.id}`;
-  const qrDataUrl = await QRCode.toDataURL(url, { width: 300, margin: 2, errorCorrectionLevel: 'H' });
+  const qrText = buildQrContent(asset);
+  const qrDataUrl = await QRCode.toDataURL(qrText, { width: 300, margin: 2, errorCorrectionLevel: 'M' });
   res.send(`${HEAD('QR &mdash; ' + asset.partName)}<body>
   ${LAYOUT(`
     <div class="page-header">
@@ -1606,6 +1638,7 @@ app.get('/qr/:id', async (req, res) => {
         <p class="page-sub">${asset.partName} &middot; ${asset.partNo}</p>
       </div>
     </div>
+    ${SCANNER_BANNER}
     <div style="max-width:300px;">
       <div class="card" style="text-align:center;">
         <div class="card-body">
@@ -1613,7 +1646,8 @@ app.get('/qr/:id', async (req, res) => {
             <img src="${qrDataUrl}" style="width:200px;height:200px;display:block;">
           </div>
           <div style="font-weight:600;color:#111;margin-bottom:3px;">${asset.partName}</div>
-          <div style="font-size:12px;color:#9ca3af;font-family:monospace;margin-bottom:16px;">${asset.partNo} &middot; ${asset.lotNo}</div>
+          <div style="font-size:12px;color:#9ca3af;font-family:monospace;margin-bottom:8px;">${asset.partNo} &middot; ${asset.lotNo}</div>
+          <div style="font-size:12px;color:#3b82f6;font-weight:500;margin-bottom:16px;">&#x2713; Scan → full label text in Notepad</div>
           <a href="/qr/${req.params.id}/download" class="btn btn-primary btn-block">${I.download} Download PNG</a>
         </div>
       </div>
@@ -1624,9 +1658,9 @@ app.get('/qr/:id', async (req, res) => {
 app.get('/qr/:id/download', async (req, res) => {
   const asset = assets.get(req.params.id);
   if (!asset) return res.status(404).send('Not found');
-  const url = `${getBaseUrl(req)}/asset/${req.params.id}`;
+  const qrText = buildQrContent(asset);
   try {
-    const buf = await QRCode.toBuffer(url, { width: 600, margin: 3 });
+    const buf = await QRCode.toBuffer(qrText, { width: 600, margin: 3, errorCorrectionLevel: 'M' });
     res.setHeader('Content-Disposition', `attachment; filename=qr-${asset.partNo}-${asset.lotNo}.png`);
     res.type('image/png').send(buf);
   } catch { res.status(500).send('Error'); }
@@ -1640,52 +1674,147 @@ app.get('/delete/:id', async (req, res) => {
   res.redirect('/list');
 });
 
-// ── SCAN PAGE ─────────────────────────────────────────────────────────────────
+// ── SCAN PAGE (FIXED) ─────────────────────────────────────────────────────────
 app.get('/scan', (req, res) => {
   res.send(`${HEAD('Scan QR')}<body style="background:#f5f6fa;">
   <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;">
-    <div style="width:100%;max-width:400px;">
+    <div style="width:100%;max-width:420px;">
       <div style="text-align:center;margin-bottom:20px;">
-        <div class="brand-icon" style="width:40px;height:40px;border-radius:10px;margin:0 auto 10px;">${I.scan}</div>
+        <div class="brand-icon" style="width:40px;height:40px;border-radius:10px;margin:0 auto 10px;background:#3b82f6;display:flex;align-items:center;justify-content:center;">${I.scan}</div>
         <div style="font-size:18px;font-weight:700;color:#0f172a;">Scan QR Code</div>
         <div style="font-size:13px;color:#64748b;margin-top:4px;">Point your camera at an AMI QR label</div>
       </div>
-      <div class="card" style="overflow:hidden;">
-        <div style="position:relative;background:#000;min-height:260px;">
-          <video id="video" style="width:100%;display:block;min-height:260px;" autoplay playsinline muted></video>
+
+      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;">
+        <!-- Camera viewfinder -->
+        <div style="position:relative;background:#000;min-height:280px;">
+          <video id="video" style="width:100%;display:block;min-height:280px;" autoplay playsinline muted></video>
+          <!-- Scanning overlay -->
           <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;">
-            <div style="width:180px;height:180px;position:relative;">
-              <div style="position:absolute;top:0;left:0;width:22px;height:22px;border-top:2.5px solid #3b82f6;border-left:2.5px solid #3b82f6;"></div>
-              <div style="position:absolute;top:0;right:0;width:22px;height:22px;border-top:2.5px solid #3b82f6;border-right:2.5px solid #3b82f6;"></div>
-              <div style="position:absolute;bottom:0;left:0;width:22px;height:22px;border-bottom:2.5px solid #3b82f6;border-left:2.5px solid #3b82f6;"></div>
-              <div style="position:absolute;bottom:0;right:0;width:22px;height:22px;border-bottom:2.5px solid #3b82f6;border-right:2.5px solid #3b82f6;"></div>
-              <div id="line" style="position:absolute;left:11px;right:11px;height:2px;background:linear-gradient(90deg,transparent,#3b82f6,transparent);animation:scan 2s ease-in-out infinite;top:50%;"></div>
+            <div style="width:200px;height:200px;position:relative;">
+              <div style="position:absolute;top:0;left:0;width:24px;height:24px;border-top:3px solid #3b82f6;border-left:3px solid #3b82f6;border-radius:2px 0 0 0;"></div>
+              <div style="position:absolute;top:0;right:0;width:24px;height:24px;border-top:3px solid #3b82f6;border-right:3px solid #3b82f6;border-radius:0 2px 0 0;"></div>
+              <div style="position:absolute;bottom:0;left:0;width:24px;height:24px;border-bottom:3px solid #3b82f6;border-left:3px solid #3b82f6;border-radius:0 0 0 2px;"></div>
+              <div style="position:absolute;bottom:0;right:0;width:24px;height:24px;border-bottom:3px solid #3b82f6;border-right:3px solid #3b82f6;border-radius:0 0 2px 0;"></div>
+              <div id="scanLine" style="position:absolute;left:12px;right:12px;height:2px;background:linear-gradient(90deg,transparent,#3b82f6,transparent);top:50%;animation:scanAnim 2s ease-in-out infinite;"></div>
             </div>
           </div>
+          <!-- Status pill overlay -->
+          <div id="statusPill" style="position:absolute;top:10px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.6);color:#fff;font-size:12px;padding:4px 12px;border-radius:99px;white-space:nowrap;">
+            Initializing camera...
+          </div>
         </div>
-        <div style="padding:13px 20px;text-align:center;background:#fafafa;border-top:1px solid #f1f5f9;">
-          <p id="output" style="font-size:13px;color:#64748b;">Initializing camera...</p>
+
+        <!-- Result area -->
+        <div style="padding:14px 16px;">
+          <div id="statusMsg" class="scan-status">Initializing camera...</div>
+
+          <!-- Success result box (hidden until scan) -->
+          <div id="resultBox" style="display:none;" class="scan-result-box">
+            <div style="font-size:11px;font-weight:700;color:#15803d;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:6px;">&#x2713; Label Decoded</div>
+            <pre id="resultText"></pre>
+          </div>
+
+          <!-- Scan Again button (hidden until scan) -->
+          <button id="retryBtn" onclick="resetScan()" style="display:none;margin-top:10px;width:100%;padding:9px;background:#3b82f6;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">
+            &#x21BA; Scan Another Label
+          </button>
         </div>
       </div>
+
       <a href="/" style="display:block;text-align:center;color:#94a3b8;font-size:13px;margin-top:16px;text-decoration:none;">&larr; Back to Dashboard</a>
     </div>
   </div>
+
   <canvas id="canvas" style="display:none;"></canvas>
-  <style>@keyframes scan{0%{top:11px}50%{top:calc(100% - 11px)}100%{top:11px}}</style>
+
+  <style>
+    @keyframes scanAnim { 0%{top:12px} 50%{top:calc(100% - 12px)} 100%{top:12px} }
+    .scan-status { font-size:13px; color:#64748b; text-align:center; padding:4px 0; }
+    .scan-status.success { color:#16a34a; font-weight:600; }
+    .scan-status.error { color:#dc2626; }
+    .scan-result-box { background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:12px 14px; margin-top:10px; }
+    .scan-result-box pre { font-family:'Courier New',monospace; font-size:11px; white-space:pre-wrap; word-break:break-all; max-height:240px; overflow-y:auto; color:#111; line-height:1.6; }
+  </style>
+
   <script src="https://unpkg.com/jsqr/dist/jsQR.js"></script>
   <script>
-    const video=document.getElementById('video'),canvas=document.getElementById('canvas'),ctx=canvas.getContext('2d'),output=document.getElementById('output');
-    navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}})
-      .then(s=>{video.srcObject=s;video.play();output.textContent='Scanning for QR codes...';scan();})
-      .catch(()=>{output.textContent='Camera access denied.';});
-    function scan(){
-      if(video.readyState===video.HAVE_ENOUGH_DATA){
-        canvas.width=video.videoWidth;canvas.height=video.videoHeight;ctx.drawImage(video,0,0);
-        const c=jsQR(ctx.getImageData(0,0,canvas.width,canvas.height).data,canvas.width,canvas.height);
-        if(c){output.textContent='QR detected! Redirecting...';output.style.color='#16a34a';window.location.href=c.data;return;}
+    var stopped = false;
+    var stream = null;
+
+    var video   = document.getElementById('video');
+    var canvas  = document.getElementById('canvas');
+    var ctx     = canvas.getContext('2d');
+    var statusMsg  = document.getElementById('statusMsg');
+    var statusPill = document.getElementById('statusPill');
+    var resultBox  = document.getElementById('resultBox');
+    var resultText = document.getElementById('resultText');
+    var retryBtn   = document.getElementById('retryBtn');
+
+    function setStatus(msg, cls) {
+      statusMsg.textContent = msg;
+      statusMsg.className = 'scan-status' + (cls ? ' ' + cls : '');
+      statusPill.textContent = msg;
+    }
+
+    function resetScan() {
+      stopped = false;
+      resultBox.style.display = 'none';
+      resultText.textContent = '';
+      retryBtn.style.display = 'none';
+      setStatus('Scanning for QR codes...');
+      scan();
+    }
+
+    function onDetected(data) {
+      stopped = true;
+
+      // Check if it looks like our AMI plain-text QR
+      if (data.trim().startsWith('=')) {
+        setStatus('\\u2713 QR detected \u2014 label decoded!', 'success');
+        resultBox.style.display = 'block';
+        resultText.textContent = data;
+      } else {
+        // Old-style URL QR or unknown — redirect
+        setStatus('QR detected! Redirecting\u2026', 'success');
+        setTimeout(function() { window.location.href = data; }, 600);
+        return;
+      }
+
+      retryBtn.style.display = 'block';
+    }
+
+    function scan() {
+      if (stopped) return;
+      if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        canvas.width  = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0);
+        var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        var code = jsQR(imageData.data, canvas.width, canvas.height, {
+          inversionAttempts: 'dontInvert'
+        });
+        if (code) {
+          onDetected(code.data);
+          return;
+        }
       }
       requestAnimationFrame(scan);
     }
+
+    // Start camera
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+      .then(function(s) {
+        stream = s;
+        video.srcObject = s;
+        video.play();
+        setStatus('Scanning for QR codes...');
+        scan();
+      })
+      .catch(function(err) {
+        setStatus('Camera access denied. Please allow camera permission.', 'error');
+        console.error('Camera error:', err);
+      });
   </script>
   </body></html>`);
 });
