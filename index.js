@@ -1,3 +1,7 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// ADD YOUR FULL index.js CODE HERE
+// ─────────────────────────────────────────────────────────────────────────────
+// Paste your complete app code into this file, then push to GitHub.
 const express = require('express');
 const QRCode = require('qrcode');
 const bodyParser = require('body-parser');
