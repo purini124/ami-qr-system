@@ -20,33 +20,34 @@ mongoose.connect(MONGO_URI)
   .catch(err => console.error('❌ MongoDB connection error:', err));
 
 const assetSchema = new mongoose.Schema({
-  name:        { type: String, required: true, unique: true },
+  name: { type: String, required: true, unique: true },
   companyName: String,
-  partNo:      String,
-  partName:    String,
-  size:        String,
-  lotNo:       String,
-  quantity:    String,
-  packer:      String,
-  month:       String,
-  woNo:        String,
-  createdAt:   String,
-  updatedAt:   String,
+  partNo: String,
+  partName: String,
+  size: String,
+  lotNo: String,
+  quantity: String,
+  packer: String,
+  month: String,
+  woNo: String,
+  createdAt: String,
+  updatedAt: String,
   scanHistory: [{ timestamp: String, device: String }],
 });
 const Asset = mongoose.model('Asset', assetSchema);
 
 const partCatalogSchema = new mongoose.Schema({
   companyName: String,
-  partNo:      { type: String, required: true },
-  partName:    String,
-  size:        String,
-  lotNo:       String,
-  quantity:    String,
-  woNo:        String,
-  month:       String,
-  uploadedAt:  String,
-  source:      { type: String, default: 'excel' },
+  partNo: { type: String, required: true },
+  partName: String,
+  size: String,
+  lotNo: String,
+  quantity: String,
+  packer: String,
+  woNo: String,
+  month: String,
+  uploadedAt: String,
+  source: { type: String, default: 'excel' },
 });
 const PartCatalog = mongoose.model('PartCatalog', partCatalogSchema);
 
@@ -66,7 +67,7 @@ async function getAllAssets() {
   return map;
 }
 async function upsertAsset(asset) {
-  await Asset.findOneAndUpdate({ name: asset.name }, asset, { upsert: true, new: true });
+  await Asset.findOneAndUpdate({ name: asset.name }, asset, { upsert: true, returnDocument: 'after' });
 }
 async function deleteAsset(name) { await Asset.deleteOne({ name }); }
 async function getAsset(name) { return Asset.findOne({ name }).lean(); }
@@ -270,15 +271,12 @@ hr { border: none; border-top: 1px solid #e5e7eb; margin: 20px 0; }
 .ac-no-results { padding: 16px 14px; text-align: center; color: #9ca3af; font-size: 12px; }
 .ac-header { padding: 6px 14px 4px; font-size: 10px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.08em; background: #f8fafc; border-bottom: 1px solid #f1f5f9; }
 .form-filled { border-color: #22c55e !important; box-shadow: 0 0 0 3px rgba(34,197,94,0.1) !important; background: #f0fdf4 !important; }
-.mini-upload-bar { background: linear-gradient(135deg,#eff6ff,#f0fdf4); border: 1px solid #bfdbfe; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-.mini-upload-bar .mu-info { font-size: 12px; color: #1d4ed8; font-weight: 600; }
-.mini-upload-bar .mu-sub { font-size: 11px; color: #64748b; margin-top: 1px; }
 .catalog-fill-banner { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; animation: fadeIn 0.2s ease; }
 @keyframes fadeIn { from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)} }
 .ami-label { width: 560px; border: 2.5px solid #111; font-family: 'Courier New', Courier, monospace; background: #fff; color: #111; font-size: 12px; }
 .ami-label * { box-sizing: border-box; }
 .ami-label-header { display: flex; align-items: stretch; border-bottom: 2px solid #111; }
-.ami-label-company { flex: 1; padding: 8px 14px; border-right: 2px solid #111; }
+.ami-label-company { flex: 1; padding: 8px 14px; border-right: 2px solid #111; display: flex; align-items: center; }
 .ami-label-company .co-name { font-size: 13px; font-weight: bold; letter-spacing: 0.03em; line-height: 1.3; }
 .ami-label-amino { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px 18px; border-right: 2px solid #111; min-width: 80px; text-align: center; }
 .ami-label-amino .ami-star { font-size: 10px; font-weight: bold; letter-spacing: 0.12em; }
@@ -293,16 +291,21 @@ hr { border: none; border-top: 1px solid #e5e7eb; margin: 20px 0; }
 .ami-field .f-value { font-size: 15px; font-weight: bold; letter-spacing: 0.03em; }
 .ami-field .f-value.mono { font-family: 'Courier New', monospace; }
 .ami-field .f-value.large { font-size: 18px; }
-.ami-label-bottom { display: flex; align-items: stretch; min-height: 130px; }
-.ami-qr-cell { border-right: 1.5px solid #111; padding: 10px 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 115px; }
-.ami-qr-cell .qr-label-text { font-size: 8px; font-weight: bold; letter-spacing: 0.1em; color: #555; margin-bottom: 5px; text-transform: uppercase; }
-.ami-qr-cell img { width: 88px; height: 88px; display: block; }
-.ami-qr-cell .qr-scan-text { font-size: 7px; color: #888; margin-top: 4px; letter-spacing: 0.06em; text-align: center; }
+.ami-label-bottom { display: flex; align-items: stretch; min-height: 140px; }
+.ami-qr-cell { border-right: 1.5px solid #111; padding: 8px 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 135px; }
+.ami-qr-cell img { width: 112px; height: 112px; display: block; }
 .ami-wo-cell { flex: 1; padding: 10px 14px; display: flex; flex-direction: column; justify-content: center; gap: 8px; }
 .ami-wo-cell .wo-label { font-size: 9px; font-weight: bold; letter-spacing: 0.1em; color: #555; margin-bottom: 2px; }
-.ami-wo-cell .wo-value { font-size: 11px; font-weight: bold; letter-spacing: 0.04em; }
+.ami-wo-cell .wo-value { font-size: 11px; font-weight: bold; letter-spacing: 0.04em; word-break: break-all; overflow-wrap: break-word; }
 .select-all-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; margin-bottom: 8px; }
 .select-all-row label { font-size: 13px; font-weight: 600; color: #374151; cursor: pointer; margin-bottom: 0; }
+.excel-upload-panel { background: linear-gradient(135deg,#f0fdf4,#eff6ff); border: 2px dashed #86efac; border-radius: 10px; padding: 20px; margin-bottom: 20px; }
+.excel-upload-panel.has-data { border-color: #22c55e; border-style: solid; background: linear-gradient(135deg,#f0fdf4,#dcfce7); }
+.excel-drop-zone { border: 2px dashed #cbd5e1; border-radius: 8px; padding: 22px 16px; text-align: center; cursor: pointer; transition: all 0.2s; background: #fff; }
+.excel-drop-zone:hover, .excel-drop-zone.drag-over { border-color: #3b82f6; background: #eff6ff; }
+.bulk-progress { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 14px 16px; margin-top: 12px; }
+.bulk-progress-bar-wrap { background: #dcfce7; border-radius: 99px; height: 8px; margin-top: 8px; overflow: hidden; }
+.bulk-progress-bar { height: 100%; background: #16a34a; border-radius: 99px; transition: width 0.3s; }
 @media (max-width: 768px) {
   .sidebar { display: none; }
   .main { margin-left: 0; padding: 62px 16px 70px; }
@@ -313,8 +316,9 @@ hr { border: none; border-top: 1px solid #e5e7eb; margin: 20px 0; }
   .detail-grid { grid-template-columns: 1fr 1fr; }
   .ami-label { width: 100%; font-size: 11px; }
   .ami-label-amino .ami-num { font-size: 20px; }
+  .ami-qr-cell { min-width: 110px; }
+  .ami-qr-cell img { width: 88px; height: 88px; }
   .print-option-grid { grid-template-columns: repeat(2,1fr); }
-  .mini-upload-bar { flex-direction: column; align-items: flex-start; }
 }`;
 
 const HEAD = (title) => `<!DOCTYPE html>
@@ -327,22 +331,23 @@ const HEAD = (title) => `<!DOCTYPE html>
 </head>`;
 
 const I = {
-  qr:`<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>`,
-  dash:`<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>`,
-  plus:`<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>`,
-  list:`<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>`,
-  scan:`<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>`,
-  logout:`<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>`,
-  box:`<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>`,
-  download:`<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>`,
-  print:`<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>`,
-  trash:`<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>`,
-  eye:`<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>`,
-  label:`<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>`,
-  edit:`<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>`,
-  excel:`<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>`,
-  upload:`<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>`,
-  check:`<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,
+  qr: `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>`,
+  dash: `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>`,
+  plus: `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>`,
+  list: `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>`,
+  scan: `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>`,
+  logout: `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>`,
+  box: `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>`,
+  download: `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>`,
+  print: `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>`,
+  trash: `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>`,
+  eye: `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>`,
+  label: `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>`,
+  edit: `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>`,
+  excel: `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>`,
+  upload: `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>`,
+  check: `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,
+  bolt: `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>`,
 };
 
 const SIDEBAR_HTML = (active) => `
@@ -353,15 +358,14 @@ const SIDEBAR_HTML = (active) => `
   </div>
   <nav class="sidebar-nav">
     <div class="nav-section">Menu</div>
-    <a href="/" class="nav-link ${active==='home'?'active':''}">${I.dash} Dashboard</a>
-    <a href="/generate-form" class="nav-link ${active==='gen'?'active':''}">${I.plus} Generate Label</a>
-    <a href="/list" class="nav-link ${active==='list'?'active':''}">${I.list} All Assets</a>
-    <a href="/labels" class="nav-link ${active==='labels'?'active':''}">${I.label} Labels</a>
-    <a href="/qr/all" class="nav-link ${active==='gallery'?'active':''}">${I.qr} QR Gallery</a>
-    <div class="nav-section">Import</div>
-    <a href="/excel-import" class="nav-link ${active==='excel'?'active':''}">${I.excel} Excel Import</a>
+    <a href="/" class="nav-link ${active === 'home' ? 'active' : ''}">${I.dash} Dashboard</a>
+    <a href="/generate-form" class="nav-link ${active === 'gen' ? 'active' : ''}">${I.plus} Generate Label</a>
+    <a href="/bulk-generate" class="nav-link ${active === 'bulk' ? 'active' : ''}">${I.bolt} Bulk Generate</a>
+    <a href="/list" class="nav-link ${active === 'list' ? 'active' : ''}">${I.list} All Assets</a>
+    <a href="/labels" class="nav-link ${active === 'labels' ? 'active' : ''}">${I.label} Labels</a>
+    <a href="/qr/all" class="nav-link ${active === 'gallery' ? 'active' : ''}">${I.qr} QR Gallery</a>
     <div class="nav-section">Tools</div>
-    <a href="/scan" class="nav-link ${active==='scan'?'active':''}">${I.scan} Scan QR Code</a>
+    <a href="/scan" class="nav-link ${active === 'scan' ? 'active' : ''}">${I.scan} Scan QR Code</a>
   </nav>
   <div class="sidebar-footer"><a href="/logout" class="nav-link red">${I.logout} Sign Out</a></div>
 </aside>`;
@@ -375,23 +379,92 @@ const MOB_HEADER = () => `<div class="mob-header">
 </div>`;
 
 const MOB_NAV = (active) => `<div class="mob-nav"><div class="mob-nav-inner">
-  <a href="/" class="mob-nav-item ${active==='home'?'active':''}">${I.dash}<span>Home</span></a>
-  <a href="/generate-form" class="mob-nav-item ${active==='gen'?'active':''}">${I.plus}<span>New</span></a>
-  <a href="/list" class="mob-nav-item ${active==='list'?'active':''}">${I.list}<span>Assets</span></a>
-  <a href="/excel-import" class="mob-nav-item ${active==='excel'?'active':''}">${I.excel}<span>Import</span></a>
-  <a href="/scan" class="mob-nav-item ${active==='scan'?'active':''}">${I.scan}<span>Scan</span></a>
+  <a href="/" class="mob-nav-item ${active === 'home' ? 'active' : ''}">${I.dash}<span>Home</span></a>
+  <a href="/generate-form" class="mob-nav-item ${active === 'gen' ? 'active' : ''}">${I.plus}<span>New</span></a>
+  <a href="/bulk-generate" class="mob-nav-item ${active === 'bulk' ? 'active' : ''}">${I.bolt}<span>Bulk</span></a>
+  <a href="/labels" class="mob-nav-item ${active === 'labels' ? 'active' : ''}">${I.label}<span>Labels</span></a>
+  <a href="/scan" class="mob-nav-item ${active === 'scan' ? 'active' : ''}">${I.scan}<span>Scan</span></a>
 </div></div>`;
 
-const LAYOUT = (content, active='') => `${SIDEBAR_HTML(active)}${MOB_HEADER()}${MOB_NAV(active)}<main class="main">${content}</main></body></html>`;
+const LAYOUT = (content, active = '') => `${SIDEBAR_HTML(active)}${MOB_HEADER()}${MOB_NAV(active)}<main class="main">${content}</main></body></html>`;
 
 const SCANNER_BANNER = `<div class="scanner-info-banner">
   <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
   <span><strong>Scanner Ready:</strong> QR encodes full label details &mdash; scan with your barcode scanner to output all fields directly.</span>
 </div>`;
 
-// ══════════════════════════════════════════════════════════════════════════════
-// SMART PRINT MODAL
-// ══════════════════════════════════════════════════════════════════════════════
+function sharedBuildLabelFn() {
+  return `
+function buildLabel(a,qr,showQR,showCo,border,inner,lw,lh){
+  var mn=('0'+(a.month||'03')).slice(-2);
+  var sc=Math.min(lw/105,lh/70);
+  var fBase=Math.max(7,Math.round(10*sc));
+  var fSm=Math.max(6,Math.round(7*sc));
+  var fLg=Math.max(9,Math.round(13*sc));
+  var fAmi=Math.max(12,Math.round(18*sc));
+  var fWo=Math.max(6,Math.round(8*sc));
+  var qrSz=Math.round(72*sc);
+  var pad=Math.round(3*sc)+'px '+Math.round(7*sc)+'px';
+  var btmH=Math.round(lh*0.38)+'mm';
+  function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  return '<div style="border:'+border+';font-family:Courier New,monospace;background:#fff;color:#111;'+
+    'width:'+lw+'mm;height:'+lh+'mm;overflow:hidden;box-sizing:border-box;display:flex;flex-direction:column;page-break-inside:avoid;break-inside:avoid;">'+
+    (showCo?'<div style="display:flex;align-items:stretch;border-bottom:'+inner+';flex-shrink:0;">'+
+      '<div style="flex:1;padding:'+pad+';border-right:'+inner+';display:flex;align-items:center;">'+
+        '<div style="font-size:'+fBase+'px;font-weight:bold;line-height:1.2;">'+esc((a.companyName||'').toUpperCase())+'</div>'+
+      '</div>'+
+      '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:'+pad+';border-right:'+inner+';min-width:'+Math.round(42*sc)+'px;text-align:center;">'+
+        '<div style="font-size:'+fSm+'px;font-weight:bold;letter-spacing:0.1em;">* AMI *</div>'+
+        '<div style="font-size:'+fAmi+'px;font-weight:bold;line-height:1;">'+mn+'</div>'+
+      '</div>'+
+      '<div style="display:flex;align-items:center;justify-content:center;padding:'+pad+';">'+
+        '<div style="border:'+inner+';padding:2px 4px;font-size:'+fSm+'px;font-weight:bold;line-height:1.3;text-align:center;">ROHS 2<br>FREE</div>'+
+      '</div>'+
+    '</div>':'')+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:'+inner+';flex-shrink:0;">'+
+      '<div style="padding:'+pad+';">'+
+        '<div style="font-size:'+fSm+'px;font-weight:bold;color:#555;">PART NO.</div>'+
+        '<div style="font-size:'+fBase+'px;font-weight:bold;font-family:Courier New,monospace;">'+esc(a.partNo)+'</div>'+
+      '</div>'+
+      '<div style="padding:'+pad+';border-left:'+inner+';">'+
+        '<div style="font-size:'+fSm+'px;font-weight:bold;color:#555;">PART NAME</div>'+
+        '<div style="font-size:'+fBase+'px;font-weight:bold;">'+esc(a.partName)+'</div>'+
+      '</div>'+
+    '</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:'+inner+';flex-shrink:0;">'+
+      '<div style="padding:'+pad+';">'+
+        '<div style="font-size:'+fSm+'px;font-weight:bold;color:#555;">SIZE</div>'+
+        '<div style="font-size:'+fBase+'px;font-weight:bold;">'+esc(a.size||'\u2014')+'</div>'+
+      '</div>'+
+      '<div style="padding:'+pad+';border-left:'+inner+';">'+
+        '<div style="font-size:'+fSm+'px;font-weight:bold;color:#555;">LOT NO.</div>'+
+        '<div style="font-size:'+fBase+'px;font-weight:bold;font-family:Courier New,monospace;">'+esc(a.lotNo)+'</div>'+
+      '</div>'+
+    '</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:'+inner+';flex-shrink:0;">'+
+      '<div style="padding:'+pad+';">'+
+        '<div style="font-size:'+fSm+'px;font-weight:bold;color:#555;">QTY</div>'+
+        '<div style="font-size:'+fLg+'px;font-weight:bold;">'+esc(a.quantity)+'</div>'+
+      '</div>'+
+      '<div style="padding:'+pad+';border-left:'+inner+';">'+
+        '<div style="font-size:'+fSm+'px;font-weight:bold;color:#555;">PACKER</div>'+
+        '<div style="font-size:'+fBase+'px;font-weight:bold;">'+esc(a.packer)+'</div>'+
+      '</div>'+
+    '</div>'+
+    '<div style="display:flex;align-items:stretch;height:'+btmH+';flex-shrink:0;min-height:0;">'+
+      (showQR?
+        '<div style="border-right:'+inner+';padding:4px 6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">'+
+          '<img src="'+qr+'" style="width:'+qrSz+'px;height:'+qrSz+'px;display:block;">'+
+        '</div>':'')+
+      '<div style="flex:1;padding:'+pad+';display:flex;flex-direction:column;justify-content:center;overflow:hidden;min-width:0;">'+
+        '<div style="font-size:'+fSm+'px;font-weight:bold;color:#555;flex-shrink:0;">WO NO.</div>'+
+        '<div style="font-size:'+fWo+'px;font-weight:bold;font-family:Courier New,monospace;word-break:break-all;overflow-wrap:anywhere;line-height:1.25;margin-top:2px;">'+esc(a.woNo||'\u2014')+'</div>'+
+      '</div>'+
+    '</div>'+
+  '</div>';
+}`;
+}
+
 function printModalHTML() {
   return `<div class="print-modal-overlay" id="printModalOverlay">
   <div class="print-modal">
@@ -400,8 +473,6 @@ function printModalHTML() {
       <button class="print-modal-close" id="closeModal">&#x2715;</button>
     </div>
     <div class="print-modal-body">
-
-      <!-- LIVE PREVIEW -->
       <div style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;padding:14px;margin-bottom:20px;">
         <div style="font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:10px;">Live Page Preview</div>
         <div style="display:flex;gap:14px;align-items:flex-start;">
@@ -409,21 +480,17 @@ function printModalHTML() {
           <div id="previewInfo" style="font-size:12px;color:#374151;line-height:2;"></div>
         </div>
       </div>
-
-      <!-- LAYOUT -->
       <div class="print-option-group">
-        <div class="print-option-label">Layout — labels per page</div>
+        <div class="print-option-label">Layout &mdash; labels per page</div>
         <div class="print-option-grid" id="layoutGrid">
           <button class="print-opt-btn" data-cols="1" data-rows="1" onclick="setLayout(this)"><div class="opt-num">1</div><div class="opt-lbl">Single</div></button>
           <button class="print-opt-btn selected" data-cols="2" data-rows="1" onclick="setLayout(this)"><div class="opt-num">2</div><div class="opt-lbl">Side by side</div></button>
           <button class="print-opt-btn" data-cols="1" data-rows="2" onclick="setLayout(this)"><div class="opt-num">2</div><div class="opt-lbl">Top / bottom</div></button>
-          <button class="print-opt-btn" data-cols="2" data-rows="2" onclick="setLayout(this)"><div class="opt-num">4</div><div class="opt-lbl">2 × 2</div></button>
-          <button class="print-opt-btn" data-cols="3" data-rows="2" onclick="setLayout(this)"><div class="opt-num">6</div><div class="opt-lbl">3 × 2</div></button>
-          <button class="print-opt-btn" data-cols="4" data-rows="2" onclick="setLayout(this)"><div class="opt-num">8</div><div class="opt-lbl">4 × 2</div></button>
+          <button class="print-opt-btn" data-cols="2" data-rows="2" onclick="setLayout(this)"><div class="opt-num">4</div><div class="opt-lbl">2 &times; 2</div></button>
+          <button class="print-opt-btn" data-cols="3" data-rows="2" onclick="setLayout(this)"><div class="opt-num">6</div><div class="opt-lbl">3 &times; 2</div></button>
+          <button class="print-opt-btn" data-cols="4" data-rows="2" onclick="setLayout(this)"><div class="opt-num">8</div><div class="opt-lbl">4 &times; 2</div></button>
         </div>
       </div>
-
-      <!-- PAPER SIZE -->
       <div class="print-option-group">
         <div class="print-option-label">Paper size</div>
         <div class="print-option-grid" id="paperGrid">
@@ -435,27 +502,13 @@ function printModalHTML() {
           <button class="print-opt-btn" data-pw="216" data-ph="279" data-pcss="size:216mm 279mm" onclick="setPaper(this)"><div class="opt-num" style="font-size:11px;">Ltr</div><div class="opt-lbl">Portrait</div></button>
         </div>
       </div>
-
-      <!-- MARGINS -->
       <div class="print-option-group">
         <div class="print-option-label">Page Margins (mm)</div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:8px;">
-          <div style="text-align:center;">
-            <div style="font-size:10px;font-weight:600;color:#6b7280;margin-bottom:4px;">TOP</div>
-            <input type="number" id="mTop" class="margin-input" value="8" min="0" max="50" oninput="updatePreview()">
-          </div>
-          <div style="text-align:center;">
-            <div style="font-size:10px;font-weight:600;color:#6b7280;margin-bottom:4px;">BOTTOM</div>
-            <input type="number" id="mBottom" class="margin-input" value="8" min="0" max="50" oninput="updatePreview()">
-          </div>
-          <div style="text-align:center;">
-            <div style="font-size:10px;font-weight:600;color:#6b7280;margin-bottom:4px;">LEFT</div>
-            <input type="number" id="mLeft" class="margin-input" value="8" min="0" max="50" oninput="updatePreview()">
-          </div>
-          <div style="text-align:center;">
-            <div style="font-size:10px;font-weight:600;color:#6b7280;margin-bottom:4px;">RIGHT</div>
-            <input type="number" id="mRight" class="margin-input" value="8" min="0" max="50" oninput="updatePreview()">
-          </div>
+          <div style="text-align:center;"><div style="font-size:10px;font-weight:600;color:#6b7280;margin-bottom:4px;">TOP</div><input type="number" id="mTop" class="margin-input" value="8" min="0" max="50" oninput="updatePreview()"></div>
+          <div style="text-align:center;"><div style="font-size:10px;font-weight:600;color:#6b7280;margin-bottom:4px;">BOTTOM</div><input type="number" id="mBottom" class="margin-input" value="8" min="0" max="50" oninput="updatePreview()"></div>
+          <div style="text-align:center;"><div style="font-size:10px;font-weight:600;color:#6b7280;margin-bottom:4px;">LEFT</div><input type="number" id="mLeft" class="margin-input" value="8" min="0" max="50" oninput="updatePreview()"></div>
+          <div style="text-align:center;"><div style="font-size:10px;font-weight:600;color:#6b7280;margin-bottom:4px;">RIGHT</div><input type="number" id="mRight" class="margin-input" value="8" min="0" max="50" oninput="updatePreview()"></div>
         </div>
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
           <span style="font-size:11px;color:#9ca3af;">Quick:</span>
@@ -463,11 +516,8 @@ function printModalHTML() {
           <button class="margin-preset" onclick="setMargins(5,5,5,5)">5mm all</button>
           <button class="margin-preset" onclick="setMargins(8,8,8,8)">8mm all</button>
           <button class="margin-preset" onclick="setMargins(10,10,10,10)">10mm all</button>
-          <button class="margin-preset" onclick="setMargins(5,5,15,5)">Left 15mm</button>
         </div>
       </div>
-
-      <!-- COPIES -->
       <div class="print-option-group">
         <div class="print-option-label">Total copies to print</div>
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
@@ -483,30 +533,15 @@ function printModalHTML() {
           <button class="print-opt-btn" onclick="setCopies(24)"><div class="opt-num" style="font-size:14px;">24</div></button>
         </div>
       </div>
-
-      <!-- LABEL OPTIONS -->
       <div class="print-option-group">
         <div class="print-option-label">Label options</div>
         <div style="border:1px solid #e5e7eb;border-radius:8px;padding:0 12px;">
-          <div class="print-toggle-row">
-            <div class="print-toggle-info"><div class="ptl">Auto-fit to page</div><div class="pts">Labels fill paper exactly based on layout</div></div>
-            <label class="toggle-switch"><input type="checkbox" id="togFit" checked onchange="updatePreview()"><span class="toggle-slider"></span></label>
-          </div>
-          <div class="print-toggle-row">
-            <div class="print-toggle-info"><div class="ptl">Show QR code</div></div>
-            <label class="toggle-switch"><input type="checkbox" id="togQR" checked onchange="updatePreview()"><span class="toggle-slider"></span></label>
-          </div>
-          <div class="print-toggle-row">
-            <div class="print-toggle-info"><div class="ptl">Company header</div></div>
-            <label class="toggle-switch"><input type="checkbox" id="togCompany" checked onchange="updatePreview()"><span class="toggle-slider"></span></label>
-          </div>
-          <div class="print-toggle-row">
-            <div class="print-toggle-info"><div class="ptl">Show border</div></div>
-            <label class="toggle-switch"><input type="checkbox" id="togBorder" checked onchange="updatePreview()"><span class="toggle-slider"></span></label>
-          </div>
+          <div class="print-toggle-row"><div class="print-toggle-info"><div class="ptl">Auto-fit to page</div><div class="pts">Labels fill paper exactly based on layout</div></div><label class="toggle-switch"><input type="checkbox" id="togFit" checked onchange="updatePreview()"><span class="toggle-slider"></span></label></div>
+          <div class="print-toggle-row"><div class="print-toggle-info"><div class="ptl">Show QR code</div></div><label class="toggle-switch"><input type="checkbox" id="togQR" checked onchange="updatePreview()"><span class="toggle-slider"></span></label></div>
+          <div class="print-toggle-row"><div class="print-toggle-info"><div class="ptl">Company header</div></div><label class="toggle-switch"><input type="checkbox" id="togCompany" checked onchange="updatePreview()"><span class="toggle-slider"></span></label></div>
+          <div class="print-toggle-row"><div class="print-toggle-info"><div class="ptl">Show border</div></div><label class="toggle-switch"><input type="checkbox" id="togBorder" checked onchange="updatePreview()"><span class="toggle-slider"></span></label></div>
         </div>
       </div>
-
     </div>
     <div class="print-modal-footer">
       <button class="btn btn-secondary" id="cancelPrintBtn">Cancel</button>
@@ -522,212 +557,60 @@ function printModalScript(qrDataUrl, assetJSON) {
   var ASSET=${JSON.stringify(assetJSON)};
   var QR=${JSON.stringify(qrDataUrl)};
   var st={cols:2,rows:1,pw:297,ph:210,pcss:'size:297mm 210mm',copies:2,fit:true,qr:true,co:true,border:true,mt:8,mb:8,ml:8,mr:8};
-
-  window.setLayout=function(btn){
-    document.querySelectorAll('#layoutGrid .print-opt-btn').forEach(function(b){b.classList.remove('selected');});
-    btn.classList.add('selected');
-    st.cols=parseInt(btn.dataset.cols);
-    st.rows=parseInt(btn.dataset.rows);
-    updatePreview();
-  };
-  window.setPaper=function(btn){
-    document.querySelectorAll('#paperGrid .print-opt-btn').forEach(function(b){b.classList.remove('selected');});
-    btn.classList.add('selected');
-    st.pw=parseInt(btn.dataset.pw);
-    st.ph=parseInt(btn.dataset.ph);
-    st.pcss=btn.dataset.pcss;
-    updatePreview();
-  };
-  window.setMargins=function(t,b,l,r){
-    document.getElementById('mTop').value=t;
-    document.getElementById('mBottom').value=b;
-    document.getElementById('mLeft').value=l;
-    document.getElementById('mRight').value=r;
-    st.mt=t; st.mb=b; st.ml=l; st.mr=r;
-    updatePreview();
-  };
-  window.setCopies=function(n){
-    document.getElementById('copiesRange').value=n;
-    document.getElementById('copiesNum').textContent=n;
-    st.copies=n;
-    updatePreview();
-  };
-
+  ${sharedBuildLabelFn()}
+  window.setLayout=function(btn){document.querySelectorAll('#layoutGrid .print-opt-btn').forEach(function(b){b.classList.remove('selected');});btn.classList.add('selected');st.cols=parseInt(btn.dataset.cols);st.rows=parseInt(btn.dataset.rows);updatePreview();};
+  window.setPaper=function(btn){document.querySelectorAll('#paperGrid .print-opt-btn').forEach(function(b){b.classList.remove('selected');});btn.classList.add('selected');st.pw=parseInt(btn.dataset.pw);st.ph=parseInt(btn.dataset.ph);st.pcss=btn.dataset.pcss;updatePreview();};
+  window.setMargins=function(t,b,l,r){document.getElementById('mTop').value=t;document.getElementById('mBottom').value=b;document.getElementById('mLeft').value=l;document.getElementById('mRight').value=r;st.mt=t;st.mb=b;st.ml=l;st.mr=r;updatePreview();};
+  window.setCopies=function(n){document.getElementById('copiesRange').value=n;document.getElementById('copiesNum').textContent=n;st.copies=n;updatePreview();};
   window.updatePreview=function(){
     st.copies=parseInt(document.getElementById('copiesRange').value)||2;
-    st.fit=document.getElementById('togFit').checked;
-    st.qr=document.getElementById('togQR').checked;
-    st.co=document.getElementById('togCompany').checked;
-    st.border=document.getElementById('togBorder').checked;
-    st.mt=parseInt(document.getElementById('mTop').value)||0;
-    st.mb=parseInt(document.getElementById('mBottom').value)||0;
-    st.ml=parseInt(document.getElementById('mLeft').value)||0;
-    st.mr=parseInt(document.getElementById('mRight').value)||0;
-
-    var gap=3;
-    var perPage=st.cols*st.rows;
-    var pages=Math.ceil(st.copies/perPage);
-    var usableW=st.pw-st.ml-st.mr;
-    var usableH=st.ph-st.mt-st.mb;
+    st.fit=document.getElementById('togFit').checked;st.qr=document.getElementById('togQR').checked;
+    st.co=document.getElementById('togCompany').checked;st.border=document.getElementById('togBorder').checked;
+    st.mt=parseInt(document.getElementById('mTop').value)||0;st.mb=parseInt(document.getElementById('mBottom').value)||0;
+    st.ml=parseInt(document.getElementById('mLeft').value)||0;st.mr=parseInt(document.getElementById('mRight').value)||0;
+    var gap=3,perPage=st.cols*st.rows,pages=Math.ceil(st.copies/perPage);
+    var usableW=st.pw-st.ml-st.mr,usableH=st.ph-st.mt-st.mb;
     var lw=st.fit?Math.floor((usableW-gap*(st.cols-1))/st.cols):100;
     var lh=st.fit?Math.floor((usableH-gap*(st.rows-1))/st.rows):70;
-
-    var SCALE=0.43;
-    var paper=document.getElementById('miniPaper');
-    paper.style.width=Math.round(st.pw*SCALE)+'px';
-    paper.style.height=Math.round(st.ph*SCALE)+'px';
-    paper.style.gridTemplateColumns='repeat('+st.cols+',1fr)';
-    paper.style.gap='2px';
+    var SCALE=0.43,paper=document.getElementById('miniPaper');
+    paper.style.width=Math.round(st.pw*SCALE)+'px';paper.style.height=Math.round(st.ph*SCALE)+'px';
+    paper.style.gridTemplateColumns='repeat('+st.cols+',1fr)';paper.style.gap='2px';
     paper.style.padding=Math.round(((st.mt+st.mb)/2)*SCALE)+'px '+Math.round(((st.ml+st.mr)/2)*SCALE)+'px';
     paper.innerHTML='';
     var shown=Math.min(perPage,st.copies);
-    for(var i=0;i<perPage;i++){
-      var c=document.createElement('div');
-      c.className='preview-cell '+(i<shown?'filled':'empty');
-      if(i<shown) c.textContent=i+1;
-      paper.appendChild(c);
-    }
-    document.getElementById('previewInfo').innerHTML=
-      '<b>'+shown+'</b> per page &nbsp;&middot;&nbsp; <b>'+pages+'</b> page'+(pages>1?'s':'')+'<br>'+
-      'Label: <b>'+lw+' &times; '+lh+' mm</b><br>'+
-      'Grid: <b>'+st.cols+' &times; '+st.rows+'</b><br>'+
-      'Margins: T<b>'+st.mt+'</b> B<b>'+st.mb+'</b> L<b>'+st.ml+'</b> R<b>'+st.mr+'</b> mm';
+    for(var i=0;i<perPage;i++){var c=document.createElement('div');c.className='preview-cell '+(i<shown?'filled':'empty');if(i<shown)c.textContent=i+1;paper.appendChild(c);}
+    document.getElementById('previewInfo').innerHTML='<b>'+shown+'</b> per page &nbsp;&middot;&nbsp; <b>'+pages+'</b> page'+(pages>1?'s':'')+'<br>Label: <b>'+lw+' &times; '+lh+' mm</b><br>Grid: <b>'+st.cols+' &times; '+st.rows+'</b>';
   };
-
-  function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-
-  function buildLabel(a,qr,showQR,showCo,border,inner,lw,lh){
-    var mn=('0'+(a.month||'03')).slice(-2);
-    var sc=Math.min(lw/105,lh/70);
-    var fBase=Math.max(7,Math.round(10*sc));
-    var fSm=Math.max(6,Math.round(7*sc));
-    var fLg=Math.max(9,Math.round(13*sc));
-    var fAmi=Math.max(12,Math.round(18*sc));
-    var qrSz=Math.round(54*sc);
-    var pad=Math.round(3*sc)+'px '+Math.round(7*sc)+'px';
-    var btmH=Math.round(lh*0.32)+'mm';
-    return '<div style="border:'+border+';font-family:Courier New,monospace;background:#fff;color:#111;'+
-      'width:'+lw+'mm;height:'+lh+'mm;overflow:hidden;box-sizing:border-box;display:flex;flex-direction:column;page-break-inside:avoid;break-inside:avoid;">'+
-      (showCo?'<div style="display:flex;align-items:stretch;border-bottom:'+inner+';flex-shrink:0;">'+
-        '<div style="flex:1;padding:'+pad+';border-right:'+inner+';">'+
-          '<div style="font-size:'+fSm+'px;font-weight:bold;color:#555;">COMPANY</div>'+
-          '<div style="font-size:'+fBase+'px;font-weight:bold;line-height:1.2;">'+esc(a.companyName.toUpperCase())+'</div>'+
-        '</div>'+
-        '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:'+pad+';border-right:'+inner+';min-width:'+Math.round(42*sc)+'px;text-align:center;">'+
-          '<div style="font-size:'+fSm+'px;font-weight:bold;letter-spacing:0.1em;">* AMI *</div>'+
-          '<div style="font-size:'+fAmi+'px;font-weight:bold;line-height:1;">'+mn+'</div>'+
-        '</div>'+
-        '<div style="display:flex;align-items:center;justify-content:center;padding:'+pad+';">'+
-          '<div style="border:'+inner+';padding:2px 4px;font-size:'+fSm+'px;font-weight:bold;line-height:1.3;text-align:center;">ROHS 2<br>FREE</div>'+
-        '</div>'+
-      '</div>':'')+
-      '<div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:'+inner+';flex-shrink:0;">'+
-        '<div style="padding:'+pad+';">'+
-          '<div style="font-size:'+fSm+'px;font-weight:bold;color:#555;">PART NO.</div>'+
-          '<div style="font-size:'+fBase+'px;font-weight:bold;font-family:Courier New,monospace;">'+esc(a.partNo)+'</div>'+
-        '</div>'+
-        '<div style="padding:'+pad+';border-left:'+inner+';">'+
-          '<div style="font-size:'+fSm+'px;font-weight:bold;color:#555;">PART NAME</div>'+
-          '<div style="font-size:'+fBase+'px;font-weight:bold;">'+esc(a.partName)+'</div>'+
-        '</div>'+
-      '</div>'+
-      '<div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:'+inner+';flex-shrink:0;">'+
-        '<div style="padding:'+pad+';">'+
-          '<div style="font-size:'+fSm+'px;font-weight:bold;color:#555;">SIZE</div>'+
-          '<div style="font-size:'+fBase+'px;font-weight:bold;">'+esc(a.size||'\u2014')+'</div>'+
-        '</div>'+
-        '<div style="padding:'+pad+';border-left:'+inner+';">'+
-          '<div style="font-size:'+fSm+'px;font-weight:bold;color:#555;">LOT NO.</div>'+
-          '<div style="font-size:'+fBase+'px;font-weight:bold;font-family:Courier New,monospace;">'+esc(a.lotNo)+'</div>'+
-        '</div>'+
-      '</div>'+
-      '<div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:'+inner+';flex-shrink:0;">'+
-        '<div style="padding:'+pad+';">'+
-          '<div style="font-size:'+fSm+'px;font-weight:bold;color:#555;">QUANTITY</div>'+
-          '<div style="font-size:'+fLg+'px;font-weight:bold;">'+esc(a.quantity)+'</div>'+
-        '</div>'+
-        '<div style="padding:'+pad+';border-left:'+inner+';">'+
-          '<div style="font-size:'+fSm+'px;font-weight:bold;color:#555;">PACKER</div>'+
-          '<div style="font-size:'+fBase+'px;font-weight:bold;">'+esc(a.packer)+'</div>'+
-        '</div>'+
-      '</div>'+
-      '<div style="display:flex;align-items:stretch;height:'+btmH+';flex-shrink:0;">'+
-        (showQR?
-          '<div style="border-right:'+inner+';padding:3px 5px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;">'+
-            '<div style="font-size:6px;font-weight:bold;color:#555;margin-bottom:2px;">QR CODE</div>'+
-            '<img src="'+qr+'" style="width:'+qrSz+'px;height:'+qrSz+'px;display:block;">'+
-            '<div style="font-size:6px;color:#888;margin-top:1px;">SCAN FOR DETAILS</div>'+
-          '</div>':'')+
-        '<div style="flex:1;padding:'+pad+';display:flex;flex-direction:column;justify-content:center;">'+
-          '<div style="font-size:'+fSm+'px;font-weight:bold;color:#555;">WO NO.</div>'+
-          '<div style="font-size:'+fBase+'px;font-weight:bold;font-family:Courier New,monospace;word-break:break-all;">'+esc(a.woNo||'\u2014')+'</div>'+
-        '</div>'+
-      '</div>'+
-    '</div>';
-  }
-
-  document.getElementById('openPrintModal').addEventListener('click',function(){
-    document.getElementById('printModalOverlay').classList.add('open');
-    updatePreview();
-  });
+  document.getElementById('openPrintModal').addEventListener('click',function(){document.getElementById('printModalOverlay').classList.add('open');updatePreview();});
   document.getElementById('closeModal').addEventListener('click',function(){document.getElementById('printModalOverlay').classList.remove('open');});
   document.getElementById('cancelPrintBtn').addEventListener('click',function(){document.getElementById('printModalOverlay').classList.remove('open');});
   document.getElementById('printModalOverlay').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
-
   document.getElementById('confirmPrintBtn').addEventListener('click',function(){
-    var gap=3;
-    var usableW=st.pw-st.ml-st.mr;
-    var usableH=st.ph-st.mt-st.mb;
+    var gap=3,usableW=st.pw-st.ml-st.mr,usableH=st.ph-st.mt-st.mb;
     var lw=st.fit?Math.floor((usableW-gap*(st.cols-1))/st.cols):100;
     var lh=st.fit?Math.floor((usableH-gap*(st.rows-1))/st.rows):70;
     var border=st.border?'1.5px solid #111':'1px solid #ccc';
     var inner=st.border?'1px solid #111':'0.5px solid #ddd';
-
     var html='';
     for(var i=0;i<st.copies;i++) html+=buildLabel(ASSET,QR,st.qr,st.co,border,inner,lw,lh);
-
     var old=document.getElementById('_pstyle');if(old)old.remove();
     var s=document.createElement('style');s.id='_pstyle';
-    s.innerHTML='@media print{'+
-      '@page{'+st.pcss+';margin-top:'+st.mt+'mm;margin-bottom:'+st.mb+'mm;margin-left:'+st.ml+'mm;margin-right:'+st.mr+'mm;}'+
-      '*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}'+
-      'html,body{margin:0!important;padding:0!important;}'+
-      'body *{visibility:hidden!important;}'+
-      '#_PS,#_PS *{visibility:visible!important;}'+
-      '#_PS{position:fixed!important;top:0!important;left:0!important;'+
-        'display:grid!important;'+
-        'grid-template-columns:repeat('+st.cols+','+lw+'mm)!important;'+
-        'grid-auto-rows:'+lh+'mm!important;'+
-        'gap:'+gap+'mm!important;'+
-        'margin:0!important;padding:0!important;background:#fff!important;}}';
+    s.innerHTML='@media print{@page{'+st.pcss+';margin-top:'+st.mt+'mm;margin-bottom:'+st.mb+'mm;margin-left:'+st.ml+'mm;margin-right:'+st.mr+'mm;}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}html,body{margin:0!important;padding:0!important;}body *{visibility:hidden!important;}#_PS,#_PS *{visibility:visible!important;}#_PS{position:fixed!important;top:0!important;left:0!important;display:grid!important;grid-template-columns:repeat('+st.cols+','+lw+'mm)!important;grid-auto-rows:'+lh+'mm!important;gap:'+gap+'mm!important;margin:0!important;padding:0!important;background:#fff!important;}}';
     document.head.appendChild(s);
-
     var sheet=document.getElementById('_PS');
     if(!sheet){sheet=document.createElement('div');sheet.id='_PS';document.body.appendChild(sheet);}
-    sheet.innerHTML=html;
-    sheet.style.cssText='display:none;';
+    sheet.innerHTML=html;sheet.style.cssText='display:none;';
     document.getElementById('printModalOverlay').classList.remove('open');
-
     setTimeout(function(){
-      sheet.style.display='grid';
-      sheet.style.gridTemplateColumns='repeat('+st.cols+','+lw+'mm)';
-      sheet.style.gridAutoRows=lh+'mm';
-      sheet.style.gap=gap+'mm';
-      requestAnimationFrame(function(){requestAnimationFrame(function(){
-        window.print();
-        setTimeout(function(){sheet.style.display='none';sheet.innerHTML='';},1500);
-      });});
+      sheet.style.display='grid';sheet.style.gridTemplateColumns='repeat('+st.cols+','+lw+'mm)';sheet.style.gridAutoRows=lh+'mm';sheet.style.gap=gap+'mm';
+      requestAnimationFrame(function(){requestAnimationFrame(function(){window.print();setTimeout(function(){sheet.style.display='none';sheet.innerHTML='';},1500);});});
     },250);
   });
-
   updatePreview();
 })();
 <\/script>`;
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// BULK PRINT MODAL
-// ══════════════════════════════════════════════════════════════════════════════
 function bulkPrintModalHTML() {
   return `<div class="print-modal-overlay" id="bulkPrintModalOverlay">
   <div class="print-modal">
@@ -737,8 +620,6 @@ function bulkPrintModalHTML() {
     </div>
     <div class="print-modal-body">
       <div id="bulkSelectedSummary" style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:7px;padding:10px 14px;margin-bottom:16px;font-size:12px;color:#1d4ed8;font-weight:600;"></div>
-
-      <!-- LIVE PREVIEW -->
       <div style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;padding:14px;margin-bottom:20px;">
         <div style="font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:10px;">Live Preview</div>
         <div style="display:flex;gap:14px;align-items:flex-start;">
@@ -746,19 +627,17 @@ function bulkPrintModalHTML() {
           <div id="bulkPreviewInfo" style="font-size:12px;color:#374151;line-height:2;"></div>
         </div>
       </div>
-
       <div class="print-option-group">
         <div class="print-option-label">Layout</div>
         <div class="print-option-grid" id="bulkLayoutGrid">
           <button class="print-opt-btn" data-cols="1" data-rows="1" onclick="bulkSetLayout(this)"><div class="opt-num">1</div><div class="opt-lbl">Single</div></button>
           <button class="print-opt-btn selected" data-cols="2" data-rows="1" onclick="bulkSetLayout(this)"><div class="opt-num">2</div><div class="opt-lbl">Side by side</div></button>
           <button class="print-opt-btn" data-cols="1" data-rows="2" onclick="bulkSetLayout(this)"><div class="opt-num">2</div><div class="opt-lbl">Top/Bottom</div></button>
-          <button class="print-opt-btn" data-cols="2" data-rows="2" onclick="bulkSetLayout(this)"><div class="opt-num">4</div><div class="opt-lbl">2 × 2</div></button>
-          <button class="print-opt-btn" data-cols="3" data-rows="2" onclick="bulkSetLayout(this)"><div class="opt-num">6</div><div class="opt-lbl">3 × 2</div></button>
-          <button class="print-opt-btn" data-cols="4" data-rows="2" onclick="bulkSetLayout(this)"><div class="opt-num">8</div><div class="opt-lbl">4 × 2</div></button>
+          <button class="print-opt-btn" data-cols="2" data-rows="2" onclick="bulkSetLayout(this)"><div class="opt-num">4</div><div class="opt-lbl">2 &times; 2</div></button>
+          <button class="print-opt-btn" data-cols="3" data-rows="2" onclick="bulkSetLayout(this)"><div class="opt-num">6</div><div class="opt-lbl">3 &times; 2</div></button>
+          <button class="print-opt-btn" data-cols="4" data-rows="2" onclick="bulkSetLayout(this)"><div class="opt-num">8</div><div class="opt-lbl">4 &times; 2</div></button>
         </div>
       </div>
-
       <div class="print-option-group">
         <div class="print-option-label">Paper size</div>
         <div class="print-option-grid" id="bulkPaperGrid">
@@ -770,7 +649,6 @@ function bulkPrintModalHTML() {
           <button class="print-opt-btn" data-pw="216" data-ph="279" data-pcss="size:216mm 279mm" onclick="bulkSetPaper(this)"><div class="opt-num" style="font-size:11px;">Ltr</div><div class="opt-lbl">Portrait</div></button>
         </div>
       </div>
-
       <div class="print-option-group">
         <div class="print-option-label">Margins (mm)</div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:8px;">
@@ -787,7 +665,6 @@ function bulkPrintModalHTML() {
           <button class="margin-preset" onclick="bulkSetMargins(10,10,10,10)">10mm all</button>
         </div>
       </div>
-
       <div class="print-option-group">
         <div class="print-option-label">Copies per label</div>
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
@@ -795,7 +672,6 @@ function bulkPrintModalHTML() {
           <span id="bulkCopiesNum" style="font-size:20px;font-weight:700;color:#111;min-width:24px;text-align:right;">1</span>
         </div>
       </div>
-
       <div class="print-option-group">
         <div class="print-option-label">Label options</div>
         <div style="border:1px solid #e5e7eb;border-radius:8px;padding:0 12px;">
@@ -820,251 +696,90 @@ function bulkPrintScript(assetsWithQR) {
   var BULK_ASSETS=${JSON.stringify(assetsWithQR)};
   var bst={cols:2,rows:1,pw:297,ph:210,pcss:'size:297mm 210mm',cpl:1,fit:true,qr:true,co:true,border:true,mt:8,mb:8,ml:8,mr:8};
   var selectedKeys=[];
-
+  ${sharedBuildLabelFn()}
   function updateBulkBar(){
-    var bar=document.getElementById('bulkBar');
-    selectedKeys=[];
+    var bar=document.getElementById('bulkBar');selectedKeys=[];
     document.querySelectorAll('.label-select-cb:checked').forEach(function(cb){selectedKeys.push(cb.dataset.key);});
-    if(selectedKeys.length>0){
-      bar.classList.add('visible');
-      document.getElementById('bulkBarCount').textContent=selectedKeys.length+' selected';
-    } else { bar.classList.remove('visible'); }
+    if(selectedKeys.length>0){bar.classList.add('visible');document.getElementById('bulkBarCount').textContent=selectedKeys.length+' selected';}
+    else{bar.classList.remove('visible');}
   }
-
   document.querySelectorAll('.label-select-cb').forEach(function(cb){
-    cb.addEventListener('change',function(){
-      var wrap=this.closest('.label-card-wrap');
-      if(this.checked) wrap.classList.add('selected-card');
-      else wrap.classList.remove('selected-card');
-      updateBulkBar();
-    });
+    cb.addEventListener('change',function(){var wrap=this.closest('.label-card-wrap');if(this.checked)wrap.classList.add('selected-card');else wrap.classList.remove('selected-card');updateBulkBar();});
   });
-
   var saCb=document.getElementById('selectAllCb');
   if(saCb) saCb.addEventListener('change',function(){
-    document.querySelectorAll('.label-select-cb').forEach(function(cb){
-      cb.checked=saCb.checked;
-      var wrap=cb.closest('.label-card-wrap');
-      if(saCb.checked) wrap.classList.add('selected-card');
-      else wrap.classList.remove('selected-card');
-    });
+    document.querySelectorAll('.label-select-cb').forEach(function(cb){cb.checked=saCb.checked;var wrap=cb.closest('.label-card-wrap');if(saCb.checked)wrap.classList.add('selected-card');else wrap.classList.remove('selected-card');});
     updateBulkBar();
   });
-
   document.getElementById('bulkPrintBtn').addEventListener('click',function(){
     if(selectedKeys.length===0){alert('Please select at least one label.');return;}
     var names=selectedKeys.map(function(k){var a=BULK_ASSETS[k];return a?(a.partName+' ('+a.partNo+')'):k;});
     document.getElementById('bulkSelectedSummary').innerHTML='&#x2713; Printing <strong>'+selectedKeys.length+' label type'+(selectedKeys.length>1?'s':'')+'</strong>: '+names.join(', ');
-    document.getElementById('bulkPrintModalOverlay').classList.add('open');
-    bulkUpdatePreview();
+    document.getElementById('bulkPrintModalOverlay').classList.add('open');bulkUpdatePreview();
   });
-
   document.getElementById('closeBulkModal').addEventListener('click',function(){document.getElementById('bulkPrintModalOverlay').classList.remove('open');});
   document.getElementById('cancelBulkPrintBtn').addEventListener('click',function(){document.getElementById('bulkPrintModalOverlay').classList.remove('open');});
   document.getElementById('bulkPrintModalOverlay').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
-
-  window.bulkSetLayout=function(btn){
-    document.querySelectorAll('#bulkLayoutGrid .print-opt-btn').forEach(function(b){b.classList.remove('selected');});
-    btn.classList.add('selected');
-    bst.cols=parseInt(btn.dataset.cols); bst.rows=parseInt(btn.dataset.rows);
-    bulkUpdatePreview();
-  };
-  window.bulkSetPaper=function(btn){
-    document.querySelectorAll('#bulkPaperGrid .print-opt-btn').forEach(function(b){b.classList.remove('selected');});
-    btn.classList.add('selected');
-    bst.pw=parseInt(btn.dataset.pw); bst.ph=parseInt(btn.dataset.ph); bst.pcss=btn.dataset.pcss;
-    bulkUpdatePreview();
-  };
-  window.bulkSetMargins=function(t,b,l,r){
-    document.getElementById('bmTop').value=t; document.getElementById('bmBottom').value=b;
-    document.getElementById('bmLeft').value=l; document.getElementById('bmRight').value=r;
-    bst.mt=t; bst.mb=b; bst.ml=l; bst.mr=r;
-    bulkUpdatePreview();
-  };
-
+  window.bulkSetLayout=function(btn){document.querySelectorAll('#bulkLayoutGrid .print-opt-btn').forEach(function(b){b.classList.remove('selected');});btn.classList.add('selected');bst.cols=parseInt(btn.dataset.cols);bst.rows=parseInt(btn.dataset.rows);bulkUpdatePreview();};
+  window.bulkSetPaper=function(btn){document.querySelectorAll('#bulkPaperGrid .print-opt-btn').forEach(function(b){b.classList.remove('selected');});btn.classList.add('selected');bst.pw=parseInt(btn.dataset.pw);bst.ph=parseInt(btn.dataset.ph);bst.pcss=btn.dataset.pcss;bulkUpdatePreview();};
+  window.bulkSetMargins=function(t,b,l,r){document.getElementById('bmTop').value=t;document.getElementById('bmBottom').value=b;document.getElementById('bmLeft').value=l;document.getElementById('bmRight').value=r;bst.mt=t;bst.mb=b;bst.ml=l;bst.mr=r;bulkUpdatePreview();};
   window.bulkUpdatePreview=function(){
     bst.cpl=parseInt(document.getElementById('bulkCopiesRange').value)||1;
-    bst.fit=document.getElementById('bulkTogFit').checked;
-    bst.qr=document.getElementById('bulkTogQR').checked;
-    bst.co=document.getElementById('bulkTogCo').checked;
-    bst.border=document.getElementById('bulkTogBorder').checked;
-    bst.mt=parseInt(document.getElementById('bmTop').value)||0;
-    bst.mb=parseInt(document.getElementById('bmBottom').value)||0;
-    bst.ml=parseInt(document.getElementById('bmLeft').value)||0;
-    bst.mr=parseInt(document.getElementById('bmRight').value)||0;
-
-    var gap=3;
-    var perPage=bst.cols*bst.rows;
-    var total=selectedKeys.length*bst.cpl;
-    var pages=Math.ceil(total/perPage);
-    var usableW=bst.pw-bst.ml-bst.mr;
-    var usableH=bst.ph-bst.mt-bst.mb;
+    bst.fit=document.getElementById('bulkTogFit').checked;bst.qr=document.getElementById('bulkTogQR').checked;
+    bst.co=document.getElementById('bulkTogCo').checked;bst.border=document.getElementById('bulkTogBorder').checked;
+    bst.mt=parseInt(document.getElementById('bmTop').value)||0;bst.mb=parseInt(document.getElementById('bmBottom').value)||0;
+    bst.ml=parseInt(document.getElementById('bmLeft').value)||0;bst.mr=parseInt(document.getElementById('bmRight').value)||0;
+    var gap=3,perPage=bst.cols*bst.rows,total=selectedKeys.length*bst.cpl,pages=Math.ceil(total/perPage);
+    var usableW=bst.pw-bst.ml-bst.mr,usableH=bst.ph-bst.mt-bst.mb;
     var lw=bst.fit?Math.floor((usableW-gap*(bst.cols-1))/bst.cols):100;
     var lh=bst.fit?Math.floor((usableH-gap*(bst.rows-1))/bst.rows):70;
-
-    var SCALE=0.43;
-    var paper=document.getElementById('bulkMiniPaper');
-    paper.style.width=Math.round(bst.pw*SCALE)+'px';
-    paper.style.height=Math.round(bst.ph*SCALE)+'px';
-    paper.style.gridTemplateColumns='repeat('+bst.cols+',1fr)';
-    paper.style.gap='2px';
+    var SCALE=0.43,paper=document.getElementById('bulkMiniPaper');
+    paper.style.width=Math.round(bst.pw*SCALE)+'px';paper.style.height=Math.round(bst.ph*SCALE)+'px';
+    paper.style.gridTemplateColumns='repeat('+bst.cols+',1fr)';paper.style.gap='2px';
     paper.style.padding=Math.round(((bst.mt+bst.mb)/2)*SCALE)+'px '+Math.round(((bst.ml+bst.mr)/2)*SCALE)+'px';
     paper.innerHTML='';
     var shown=Math.min(perPage,total);
-    for(var i=0;i<perPage;i++){
-      var c=document.createElement('div');
-      c.className='preview-cell '+(i<shown?'filled':'empty');
-      if(i<shown) c.textContent=i+1;
-      paper.appendChild(c);
-    }
-    document.getElementById('bulkPreviewInfo').innerHTML=
-      '<b>'+selectedKeys.length+'</b> type &times; <b>'+bst.cpl+'</b> = <b>'+total+'</b> labels<br>'+
-      '<b>'+pages+'</b> page'+(pages>1?'s':'')+'<br>'+
-      'Label: <b>'+lw+' &times; '+lh+' mm</b>';
+    for(var i=0;i<perPage;i++){var c=document.createElement('div');c.className='preview-cell '+(i<shown?'filled':'empty');if(i<shown)c.textContent=i+1;paper.appendChild(c);}
+    document.getElementById('bulkPreviewInfo').innerHTML='<b>'+selectedKeys.length+'</b> type &times; <b>'+bst.cpl+'</b> = <b>'+total+'</b> labels<br><b>'+pages+'</b> page'+(pages>1?'s':'')+'<br>Label: <b>'+lw+' &times; '+lh+' mm</b>';
   };
-
-  function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-
-  function buildBulkLabel(a,qr,showQR,showCo,border,inner,lw,lh){
-    var mn=('0'+(a.month||'03')).slice(-2);
-    var sc=Math.min(lw/105,lh/70);
-    var fBase=Math.max(7,Math.round(10*sc));
-    var fSm=Math.max(6,Math.round(7*sc));
-    var fLg=Math.max(9,Math.round(13*sc));
-    var fAmi=Math.max(12,Math.round(18*sc));
-    var qrSz=Math.round(54*sc);
-    var pad=Math.round(3*sc)+'px '+Math.round(7*sc)+'px';
-    var btmH=Math.round(lh*0.32)+'mm';
-    return '<div style="border:'+border+';font-family:Courier New,monospace;background:#fff;color:#111;'+
-      'width:'+lw+'mm;height:'+lh+'mm;overflow:hidden;box-sizing:border-box;display:flex;flex-direction:column;page-break-inside:avoid;break-inside:avoid;">'+
-      (showCo?'<div style="display:flex;align-items:stretch;border-bottom:'+inner+';flex-shrink:0;">'+
-        '<div style="flex:1;padding:'+pad+';border-right:'+inner+';">'+
-          '<div style="font-size:'+fSm+'px;font-weight:bold;color:#555;">COMPANY</div>'+
-          '<div style="font-size:'+fBase+'px;font-weight:bold;line-height:1.2;">'+esc(a.companyName.toUpperCase())+'</div>'+
-        '</div>'+
-        '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:'+pad+';border-right:'+inner+';min-width:'+Math.round(42*sc)+'px;text-align:center;">'+
-          '<div style="font-size:'+fSm+'px;font-weight:bold;letter-spacing:0.1em;">* AMI *</div>'+
-          '<div style="font-size:'+fAmi+'px;font-weight:bold;line-height:1;">'+mn+'</div>'+
-        '</div>'+
-        '<div style="display:flex;align-items:center;justify-content:center;padding:'+pad+';">'+
-          '<div style="border:'+inner+';padding:2px 4px;font-size:'+fSm+'px;font-weight:bold;line-height:1.3;text-align:center;">ROHS 2<br>FREE</div>'+
-        '</div>'+
-      '</div>':'')+
-      '<div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:'+inner+';flex-shrink:0;">'+
-        '<div style="padding:'+pad+';">'+
-          '<div style="font-size:'+fSm+'px;font-weight:bold;color:#555;">PART NO.</div>'+
-          '<div style="font-size:'+fBase+'px;font-weight:bold;font-family:Courier New,monospace;">'+esc(a.partNo)+'</div>'+
-        '</div>'+
-        '<div style="padding:'+pad+';border-left:'+inner+';">'+
-          '<div style="font-size:'+fSm+'px;font-weight:bold;color:#555;">PART NAME</div>'+
-          '<div style="font-size:'+fBase+'px;font-weight:bold;">'+esc(a.partName)+'</div>'+
-        '</div>'+
-      '</div>'+
-      '<div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:'+inner+';flex-shrink:0;">'+
-        '<div style="padding:'+pad+';">'+
-          '<div style="font-size:'+fSm+'px;font-weight:bold;color:#555;">SIZE</div>'+
-          '<div style="font-size:'+fBase+'px;font-weight:bold;">'+esc(a.size||'\u2014')+'</div>'+
-        '</div>'+
-        '<div style="padding:'+pad+';border-left:'+inner+';">'+
-          '<div style="font-size:'+fSm+'px;font-weight:bold;color:#555;">LOT NO.</div>'+
-          '<div style="font-size:'+fBase+'px;font-weight:bold;font-family:Courier New,monospace;">'+esc(a.lotNo)+'</div>'+
-        '</div>'+
-      '</div>'+
-      '<div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:'+inner+';flex-shrink:0;">'+
-        '<div style="padding:'+pad+';">'+
-          '<div style="font-size:'+fSm+'px;font-weight:bold;color:#555;">QUANTITY</div>'+
-          '<div style="font-size:'+fLg+'px;font-weight:bold;">'+esc(a.quantity)+'</div>'+
-        '</div>'+
-        '<div style="padding:'+pad+';border-left:'+inner+';">'+
-          '<div style="font-size:'+fSm+'px;font-weight:bold;color:#555;">PACKER</div>'+
-          '<div style="font-size:'+fBase+'px;font-weight:bold;">'+esc(a.packer)+'</div>'+
-        '</div>'+
-      '</div>'+
-      '<div style="display:flex;align-items:stretch;height:'+btmH+';flex-shrink:0;">'+
-        (showQR?
-          '<div style="border-right:'+inner+';padding:3px 5px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;">'+
-            '<div style="font-size:6px;font-weight:bold;color:#555;margin-bottom:2px;">QR CODE</div>'+
-            '<img src="'+qr+'" style="width:'+qrSz+'px;height:'+qrSz+'px;display:block;">'+
-            '<div style="font-size:6px;color:#888;margin-top:1px;">SCAN FOR DETAILS</div>'+
-          '</div>':'')+
-        '<div style="flex:1;padding:'+pad+';display:flex;flex-direction:column;justify-content:center;">'+
-          '<div style="font-size:'+fSm+'px;font-weight:bold;color:#555;">WO NO.</div>'+
-          '<div style="font-size:'+fBase+'px;font-weight:bold;font-family:Courier New,monospace;word-break:break-all;">'+esc(a.woNo||'\u2014')+'</div>'+
-        '</div>'+
-      '</div>'+
-    '</div>';
-  }
-
   document.getElementById('confirmBulkPrintBtn').addEventListener('click',function(){
-    var gap=3;
-    var usableW=bst.pw-bst.ml-bst.mr;
-    var usableH=bst.ph-bst.mt-bst.mb;
+    var gap=3,usableW=bst.pw-bst.ml-bst.mr,usableH=bst.ph-bst.mt-bst.mb;
     var lw=bst.fit?Math.floor((usableW-gap*(bst.cols-1))/bst.cols):100;
     var lh=bst.fit?Math.floor((usableH-gap*(bst.rows-1))/bst.rows):70;
     var border=bst.border?'1.5px solid #111':'1px solid #ccc';
     var inner=bst.border?'1px solid #111':'0.5px solid #ddd';
-
     var html='';
-    selectedKeys.forEach(function(k){
-      var a=BULK_ASSETS[k];
-      if(!a) return;
-      for(var c=0;c<bst.cpl;c++) html+=buildBulkLabel(a,a._qrDataUrl,bst.qr,bst.co,border,inner,lw,lh);
-    });
-
+    selectedKeys.forEach(function(k){var a=BULK_ASSETS[k];if(!a)return;for(var c=0;c<bst.cpl;c++)html+=buildLabel(a,a._qrDataUrl,bst.qr,bst.co,border,inner,lw,lh);});
     var old=document.getElementById('_bpstyle');if(old)old.remove();
     var s=document.createElement('style');s.id='_bpstyle';
-    s.innerHTML='@media print{'+
-      '@page{'+bst.pcss+';margin-top:'+bst.mt+'mm;margin-bottom:'+bst.mb+'mm;margin-left:'+bst.ml+'mm;margin-right:'+bst.mr+'mm;}'+
-      '*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}'+
-      'html,body{margin:0!important;padding:0!important;}'+
-      'body *{visibility:hidden!important;}'+
-      '#_BPS,#_BPS *{visibility:visible!important;}'+
-      '#_BPS{position:fixed!important;top:0!important;left:0!important;'+
-        'display:grid!important;'+
-        'grid-template-columns:repeat('+bst.cols+','+lw+'mm)!important;'+
-        'grid-auto-rows:'+lh+'mm!important;'+
-        'gap:'+gap+'mm!important;'+
-        'margin:0!important;padding:0!important;background:#fff!important;}}';
+    s.innerHTML='@media print{@page{'+bst.pcss+';margin-top:'+bst.mt+'mm;margin-bottom:'+bst.mb+'mm;margin-left:'+bst.ml+'mm;margin-right:'+bst.mr+'mm;}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}html,body{margin:0!important;padding:0!important;}body *{visibility:hidden!important;}#_BPS,#_BPS *{visibility:visible!important;}#_BPS{position:fixed!important;top:0!important;left:0!important;display:grid!important;grid-template-columns:repeat('+bst.cols+','+lw+'mm)!important;grid-auto-rows:'+lh+'mm!important;gap:'+gap+'mm!important;margin:0!important;padding:0!important;background:#fff!important;}}';
     document.head.appendChild(s);
-
     var sheet=document.getElementById('_BPS');
     if(!sheet){sheet=document.createElement('div');sheet.id='_BPS';document.body.appendChild(sheet);}
-    sheet.innerHTML=html;
-    sheet.style.cssText='display:none;';
+    sheet.innerHTML=html;sheet.style.cssText='display:none;';
     document.getElementById('bulkPrintModalOverlay').classList.remove('open');
-
     setTimeout(function(){
-      sheet.style.display='grid';
-      sheet.style.gridTemplateColumns='repeat('+bst.cols+','+lw+'mm)';
-      sheet.style.gridAutoRows=lh+'mm';
-      sheet.style.gap=gap+'mm';
-      requestAnimationFrame(function(){requestAnimationFrame(function(){
-        window.print();
-        setTimeout(function(){sheet.style.display='none';sheet.innerHTML='';},1500);
-      });});
+      sheet.style.display='grid';sheet.style.gridTemplateColumns='repeat('+bst.cols+','+lw+'mm)';sheet.style.gridAutoRows=lh+'mm';sheet.style.gap=gap+'mm';
+      requestAnimationFrame(function(){requestAnimationFrame(function(){window.print();setTimeout(function(){sheet.style.display='none';sheet.innerHTML='';},1500);});});
     },250);
   });
 })();
 <\/script>`;
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// EXCEL IMPORT HELPERS
-// ══════════════════════════════════════════════════════════════════════════════
 const COL_MAP = {
-  companyname:'companyName', company:'companyName', 'company name':'companyName',
-  partno:'partNo', 'part no':'partNo', 'part no.':'partNo', 'part number':'partNo', partnumber:'partNo',
-  partname:'partName', 'part name':'partName',
-  size:'size',
-  lotno:'lotNo', 'lot no':'lotNo', 'lot no.':'lotNo', lotnumber:'lotNo', 'lot number':'lotNo', lot:'lotNo',
-  quantity:'quantity', qty:'quantity',
-  wono:'woNo', 'wo no':'woNo', 'wo no.':'woNo', 'work order':'woNo', workorder:'woNo',
-  month:'month', 'month (1-12)':'month',
+  companyname: 'companyName', company: 'companyName', 'company name': 'companyName',
+  partno: 'partNo', 'part no': 'partNo', 'part no.': 'partNo', 'part number': 'partNo', partnumber: 'partNo',
+  partname: 'partName', 'part name': 'partName',
+  size: 'size',
+  lotno: 'lotNo', 'lot no': 'lotNo', 'lot no.': 'lotNo', lotnumber: 'lotNo', 'lot number': 'lotNo', lot: 'lotNo',
+  quantity: 'quantity', qty: 'quantity',
+  wono: 'woNo', 'wo no': 'woNo', 'wo no.': 'woNo', 'work order': 'woNo', workorder: 'woNo',
+  month: 'month', 'month (1-12)': 'month',
+  packer: 'packer', 'packer name': 'packer', 'packed by': 'packer',
 };
 
-function normalizeHeader(h) {
-  return String(h).toLowerCase().trim().replace(/\s+/g,' ');
-}
+function normalizeHeader(h) { return String(h).toLowerCase().trim().replace(/\s+/g, ' '); }
 
 function parseExcelBuffer(buffer) {
   const wb = XLSX.read(buffer, { type: 'buffer' });
@@ -1082,8 +797,8 @@ function parseExcelBuffer(buffer) {
       const val = row[idx];
       rec[field] = (val === null || val === undefined) ? '' : String(val).trim();
     });
-    if (!rec.partNo) { errors.push(`Row ${ri+2}: Missing Part No.`); return; }
-    if (!rec.companyName) { errors.push(`Row ${ri+2}: Missing Company Name.`); return; }
+    if (!rec.partNo) { errors.push(`Row ${ri + 2}: Missing Part No.`); return; }
+    if (!rec.companyName) { errors.push(`Row ${ri + 2}: Missing Company Name.`); return; }
     if (rec.month) rec.month = ('0' + parseInt(rec.month || '1')).slice(-2);
     records.push(rec);
   });
@@ -1092,42 +807,20 @@ function parseExcelBuffer(buffer) {
 
 function buildExcelTemplate() {
   const wb = XLSX.utils.book_new();
-  const headers = ['Company Name','Part No','Part Name','Size','Lot No','Quantity','WO No','Month (1-12)'];
-  const sample = ['AMBER ENTERPRISES INDIA LIMITED','93198464460','FPE T3 200*100','3MMX100MMX200MM','28032601','100 Pcs','MFG-WO-2026-28032','3'];
+  const headers = ['Company Name', 'Part No', 'Part Name', 'Size', 'Lot No', 'Quantity', 'Packer Name', 'WO No', 'Month (1-12)'];
+  const sample = ['AMBER ENTERPRISES INDIA LIMITED', '93198464460', 'FPE T3 200*100', '3MM X 100MM X 200MM', '28032601', '100 Pcs', 'Nandhini', 'MFG-WO-2026-28032', '3'];
   const ws = XLSX.utils.aoa_to_sheet([headers, sample]);
-  ws['!cols'] = [{wch:40},{wch:18},{wch:22},{wch:20},{wch:16},{wch:12},{wch:24},{wch:14}];
+  ws['!cols'] = [{ wch: 40 }, { wch: 18 }, { wch: 22 }, { wch: 20 }, { wch: 16 }, { wch: 12 }, { wch: 18 }, { wch: 24 }, { wch: 14 }];
   XLSX.utils.book_append_sheet(wb, ws, 'AMI Parts Template');
-  const ws2 = XLSX.utils.aoa_to_sheet([
-    ['AMI QR System — Excel Import Instructions'],[''],
-    ['COLUMN DESCRIPTIONS:'],
-    ['Company Name','Full company name (required)'],
-    ['Part No','Part number / article number (required)'],
-    ['Part Name','Descriptive part name (required)'],
-    ['Size','Physical size / dimensions (optional)'],
-    ['Lot No','Lot or batch number (required for label generation)'],
-    ['Quantity','Quantity with unit e.g. "100 Pcs" (required)'],
-    ['WO No','Work Order number (required)'],
-    ['Month (1-12)','Month number for AMI code (1=Jan, 12=Dec)'],
-    [''],['NOTES:'],
-    ['- Do not change the column headers in the template sheet.'],
-    ['- Each row = one part entry in the catalog.'],
-    ['- After upload, go to Generate Label and type a Part No. to see suggestions.'],
-    ['- Packer name is entered manually on the Generate Label form.'],
-  ]);
-  ws2['!cols'] = [{wch:22},{wch:55}];
-  XLSX.utils.book_append_sheet(wb, ws2, 'Instructions');
   return XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// AUTOCOMPLETE SCRIPT
-// ══════════════════════════════════════════════════════════════════════════════
 function generateFormScript(catalogCount) {
   return `<script>
 (function(){
   var ACT=null, ITEMS=[], hiIdx=-1, isFilled=false;
   function escH(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-  var FILLABLE=['companyName','partNo','partName','size','lotNo','quantity','woNo'];
+  var FILLABLE=['companyName','partNo','partName','size','lotNo','quantity','packer','woNo'];
   function setFilled(yes){
     FILLABLE.forEach(function(id){var el=document.getElementById(id);if(!el)return;if(yes)el.classList.add('form-filled');else el.classList.remove('form-filled');});
     isFilled=yes;
@@ -1137,13 +830,13 @@ function generateFormScript(catalogCount) {
     if(clearBtn) clearBtn.style.display=yes?'flex':'none';
   }
   window.fillFromCatalog=function(item){
-    var fields={companyName:item.companyName,partNo:item.partNo,partName:item.partName,size:item.size,lotNo:item.lotNo,quantity:item.quantity,woNo:item.woNo};
-    Object.keys(fields).forEach(function(id){var el=document.getElementById(id);if(el&&fields[id])el.value=fields[id];});
+    var fields={companyName:item.companyName,partNo:item.partNo,partName:item.partName,size:item.size,lotNo:item.lotNo,quantity:item.quantity,packer:item.packer||'',woNo:item.woNo};
+    Object.keys(fields).forEach(function(id){var el=document.getElementById(id);if(el&&fields[id]!==undefined)el.value=fields[id];});
     if(item.month){var sel=document.getElementById('month');sel.value=('0'+parseInt(item.month)).slice(-2);}
     setFilled(true);
     closeAcList();
-    var banner=document.getElementById('catalogFillBanner');
-    if(banner) document.getElementById('fillSourceText').textContent=item.partNo+(item.partName?' \u2014 '+item.partName:'');
+    var fillSrc=document.getElementById('fillSourceText');
+    if(fillSrc) fillSrc.textContent=item.partNo+(item.partName?' \u2014 '+item.partName:'');
   };
   window.clearCatalogFill=function(){
     FILLABLE.forEach(function(id){var el=document.getElementById(id);if(el){el.value='';el.classList.remove('form-filled');}});
@@ -1179,7 +872,7 @@ function generateFormScript(catalogCount) {
   }
   window.CATALOG_ITEMS=[];
   window.hiAcItem=function(i){hiIdx=i;document.querySelectorAll('.autocomplete-item').forEach(function(el,j){el.classList.toggle('highlighted',j===i);});};
-  function triggerSearch(val,fieldEl){
+  function triggerSearch(val){
     if(ACT) clearTimeout(ACT);
     if(!val||val.length<1){closeAcList();return;}
     ACT=setTimeout(function(){
@@ -1193,40 +886,66 @@ function generateFormScript(catalogCount) {
   searchFields.forEach(function(id){
     var el=document.getElementById(id);
     if(!el) return;
-    el.addEventListener('input',function(){triggerSearch(this.value,this);});
-    el.addEventListener('focus',function(){if(this.value)triggerSearch(this.value,this);});
-    el.addEventListener('keydown',function(e){onAcKeyDown(e);});
+    el.addEventListener('input',function(){triggerSearch(this.value);});
+    el.addEventListener('focus',function(){if(this.value)triggerSearch(this.value);});
+    el.addEventListener('keydown',function(e){
+      var list=getAcContainer();
+      if(!list.classList.contains('open')) return;
+      if(e.key==='ArrowDown'){e.preventDefault();hiIdx=Math.min(hiIdx+1,ITEMS.length-1);document.querySelectorAll('.autocomplete-item').forEach(function(el,j){el.classList.toggle('highlighted',j===hiIdx);});}
+      else if(e.key==='ArrowUp'){e.preventDefault();hiIdx=Math.max(hiIdx-1,0);document.querySelectorAll('.autocomplete-item').forEach(function(el,j){el.classList.toggle('highlighted',j===hiIdx);});}
+      else if(e.key==='Enter'&&hiIdx>=0){e.preventDefault();if(CATALOG_ITEMS[hiIdx])fillFromCatalog(CATALOG_ITEMS[hiIdx]);}
+      else if(e.key==='Escape'){closeAcList();}
+    });
   });
-  window.onAcKeyDown=function(e){
-    var list=getAcContainer();
-    if(!list.classList.contains('open')) return;
-    if(e.key==='ArrowDown'){e.preventDefault();hiIdx=Math.min(hiIdx+1,ITEMS.length-1);document.querySelectorAll('.autocomplete-item').forEach(function(el,j){el.classList.toggle('highlighted',j===hiIdx);});}
-    else if(e.key==='ArrowUp'){e.preventDefault();hiIdx=Math.max(hiIdx-1,0);document.querySelectorAll('.autocomplete-item').forEach(function(el,j){el.classList.toggle('highlighted',j===hiIdx);});}
-    else if(e.key==='Enter'&&hiIdx>=0){e.preventDefault();if(CATALOG_ITEMS[hiIdx])fillFromCatalog(CATALOG_ITEMS[hiIdx]);}
-    else if(e.key==='Escape'){closeAcList();}
-  };
-  document.addEventListener('mousedown',function(e){if(!e.target.closest('#acList')){closeAcList();}});
-  window.quickUploadExcel=function(input){
+  document.addEventListener('mousedown',function(e){if(!e.target.closest('#acList'))closeAcList();});
+  var dropZone=document.getElementById('inlineDropZone');
+  if(dropZone){
+    ['dragenter','dragover'].forEach(function(ev){dropZone.addEventListener(ev,function(e){e.preventDefault();dropZone.classList.add('drag-over');});});
+    ['dragleave','drop'].forEach(function(ev){dropZone.addEventListener(ev,function(e){e.preventDefault();dropZone.classList.remove('drag-over');});});
+    dropZone.addEventListener('drop',function(e){
+      e.preventDefault();
+      var f=e.dataTransfer.files[0];
+      if(f){var dt=new DataTransfer();dt.items.add(f);document.getElementById('inlineExcelFile').files=dt.files;handleInlineExcel(document.getElementById('inlineExcelFile'));}
+    });
+  }
+  window.handleInlineExcel=function(input){
     if(!input.files||!input.files[0]) return;
     var f=input.files[0];
-    var st=document.getElementById('quickUploadStatus');
-    st.innerHTML='<div class="alert alert-info" style="margin-bottom:12px;">&#x23F3; Uploading <strong>'+escH(f.name)+'</strong>&hellip;</div>';
-    var fd=new FormData();
-    fd.append('excelFile',f);
-    fd.append('importMode','append');
+    var st=document.getElementById('inlineUploadStatus');
+    if(st) st.innerHTML='<div style="font-size:12px;color:#1d4ed8;padding:6px 0;">&#x23F3; Uploading <strong>'+escH(f.name)+'</strong>&hellip;</div>';
+    var fd=new FormData();fd.append('excelFile',f);fd.append('importMode','replace');
     fetch('/upload-excel',{method:'POST',body:fd,redirect:'manual'})
       .then(function(){return fetch('/api/catalog');})
       .then(function(r){return r.json();})
       .then(function(items){
         var cnt=items.length;
-        st.innerHTML='<div class="alert alert-success" style="margin-bottom:12px;">&#x2713; <strong>Catalog updated!</strong> '+cnt+' part'+(cnt!==1?'s':'')+' available.</div>';
-        var mu=document.querySelector('.mu-info');
-        if(mu) mu.innerHTML='&#x2728; Excel Catalog Active &mdash; <strong>'+cnt+' part'+(cnt!==1?'s':'')+' loaded</strong>';
-        if(cnt===1&&items[0]) setTimeout(function(){fillFromCatalog(items[0]);},300);
+        if(st) st.innerHTML='<div style="font-size:12px;color:#15803d;padding:6px 0;">&#x2713; <strong>'+cnt+' part'+(cnt!==1?'s':'')+' loaded!</strong> Type any field below to search &amp; auto-fill.</div>';
+        var panel=document.getElementById('excelUploadPanel');
+        if(panel) panel.classList.add('has-data');
+        var countEl=document.getElementById('catalogCountBadge');
+        if(countEl) countEl.textContent=cnt+' part'+(cnt!==1?'s':'')+' ready';
+        if(cnt===1&&items[0]) setTimeout(function(){fillFromCatalog(items[0]);},400);
       })
-      .catch(function(){st.innerHTML='<div class="alert alert-error" style="margin-bottom:12px;">Upload failed. <a href="/excel-import">Try Excel Import page.</a></div>';});
+      .catch(function(){if(st) st.innerHTML='<div style="font-size:12px;color:#b91c1c;padding:6px 0;">&#x2717; Upload failed. Try again.</div>';});
     input.value='';
   };
+  var acList=document.getElementById('acList');
+  searchFields.forEach(function(id){
+    var el=document.getElementById(id);
+    if(!el) return;
+    el.addEventListener('focus',function(){positionDropdown(this);});
+    el.addEventListener('input',function(){positionDropdown(this);});
+  });
+  function positionDropdown(el){
+    var rect=el.getBoundingClientRect();
+    acList.style.top=(rect.bottom+window.scrollY)+'px';
+    acList.style.left=rect.left+'px';
+    acList.style.width=rect.width+'px';
+  }
+  window.addEventListener('scroll',function(){
+    var active=document.activeElement;
+    if(active&&searchFields.indexOf(active.id)!==-1) positionDropdown(active);
+  });
 })();
 <\/script>`;
 }
@@ -1255,17 +974,17 @@ app.get('/', async (req, res) => {
 
   const assets = await getAllAssets();
   const all = [...assets.values()];
-  const totalScans = all.reduce((s,a)=>s+(a.scanHistory?.length||0),0);
+  const totalScans = all.reduce((s, a) => s + (a.scanHistory?.length || 0), 0);
   const today = new Date().toDateString();
-  const todayScans = all.reduce((s,a)=>s+(a.scanHistory?.filter(sc=>new Date(sc.timestamp).toDateString()===today).length||0),0);
+  const todayScans = all.reduce((s, a) => s + (a.scanHistory?.filter(sc => new Date(sc.timestamp).toDateString() === today).length || 0), 0);
   const catalogCount = await PartCatalog.countDocuments();
   const recent = all.slice(-5).reverse();
-  const rows = recent.map(a=>`<tr>
-    <td><a href="/asset/${a.name}" class="link">${a.partName||'&mdash;'}</a></td>
-    <td><span class="badge badge-blue">${a.partNo||'&mdash;'}</span></td>
-    <td>${a.companyName||'&mdash;'}</td>
-    <td>${a.lotNo||'&mdash;'}</td>
-    <td><span class="badge badge-${(a.scanHistory?.length||0)>0?'green':'gray'}">${a.scanHistory?.length||0}</span></td>
+  const rows = recent.map(a => `<tr>
+    <td><a href="/asset/${a.name}" class="link">${a.partName || '&mdash;'}</a></td>
+    <td><span class="badge badge-blue">${a.partNo || '&mdash;'}</span></td>
+    <td>${a.companyName || '&mdash;'}</td>
+    <td>${a.lotNo || '&mdash;'}</td>
+    <td><span class="badge badge-${(a.scanHistory?.length || 0) > 0 ? 'green' : 'gray'}">${a.scanHistory?.length || 0}</span></td>
     <td><div style="display:flex;gap:5px;">
       <a href="/asset/${a.name}" class="btn btn-secondary btn-sm">${I.eye}</a>
       <a href="/edit/${a.name}" class="btn btn-warning btn-sm">${I.edit}</a>
@@ -1275,38 +994,29 @@ app.get('/', async (req, res) => {
   res.send(`${HEAD('Dashboard')}<body>${LAYOUT(`
   <div class="page-header">
     <div><h1 class="page-title">Dashboard</h1><p class="page-sub">Welcome back &mdash; AMI QR System</p></div>
-    <a href="/generate-form" class="btn btn-primary">${I.plus} New Label</a>
+    <div style="display:flex;gap:8px;">
+      <a href="/bulk-generate" class="btn btn-secondary">${I.bolt} Bulk Generate</a>
+      <a href="/generate-form" class="btn btn-primary">${I.plus} New Label</a>
+    </div>
   </div>
   <div class="stats-row">
     <div class="stat-box"><div class="stat-label">Total Assets</div><div class="stat-number" style="color:#3b82f6;">${assets.size}</div><div class="stat-note">registered parts</div></div>
     <div class="stat-box"><div class="stat-label">Total Scans</div><div class="stat-number">${totalScans}</div><div class="stat-note">${todayScans} today</div></div>
-    <div class="stat-box"><div class="stat-label">Catalog Parts</div><div class="stat-number" style="color:#16a34a;">${catalogCount}</div><div class="stat-note"><a href="/excel-import" style="color:#16a34a;">manage catalog</a></div></div>
-  </div>
-  <div class="grid-2" style="margin-bottom:20px;">
-    <div class="card" style="margin-bottom:0;"><div class="card-body">
-      <p style="font-size:15px;font-weight:600;color:#111;margin-bottom:6px;">Generate QR Label</p>
-      <p style="font-size:13px;color:#6b7280;margin-bottom:14px;">Create a new part label with auto-fill from Excel catalog.</p>
-      <a href="/generate-form" class="btn btn-primary">${I.plus} Create Label</a>
-    </div></div>
-    <div class="card" style="margin-bottom:0;"><div class="card-body">
-      <p style="font-size:15px;font-weight:600;color:#111;margin-bottom:6px;">Excel Import</p>
-      <p style="font-size:13px;color:#6b7280;margin-bottom:14px;">Upload bulk part data for smart autocomplete.</p>
-      <a href="/excel-import" class="btn btn-success">${I.excel} Open Excel Import</a>
-    </div></div>
+    <div class="stat-box"><div class="stat-label">Catalog Parts</div><div class="stat-number" style="color:#16a34a;">${catalogCount}</div><div class="stat-note">auto-fill catalog</div></div>
   </div>
   <div class="card">
     <div class="card-header"><span class="card-title">Recent Assets</span><a href="/list" class="btn btn-secondary btn-sm">View All</a></div>
-    ${recent.length>0?`<div class="table-wrap"><table>
+    ${recent.length > 0 ? `<div class="table-wrap"><table>
       <thead><tr><th>Part Name</th><th>Part No.</th><th>Company</th><th>Lot No.</th><th>Scans</th><th>Actions</th></tr></thead>
       <tbody>${rows}</tbody>
-    </table></div>`:`<div class="empty">${I.box}<p>No assets yet.</p><a href="/generate-form" class="btn btn-primary">${I.plus} Generate First Label</a></div>`}
+    </table></div>` : `<div class="empty">${I.box}<p>No assets yet.</p><a href="/generate-form" class="btn btn-primary">${I.plus} Generate First Label</a></div>`}
   </div>
-  `,'home')}`);
+  `, 'home')}`);
 });
 
 app.post('/login', (req, res) => {
   const { id, password } = req.body;
-  if (id===ADMIN_ID && password===ADMIN_PASSWORD) {
+  if (id === ADMIN_ID && password === ADMIN_PASSWORD) {
     const sid = generateSessionId();
     sessions.set(sid, { authenticated: true });
     res.setHeader('Set-Cookie', `sessionId=${sid}; HttpOnly; Path=/; SameSite=Lax`);
@@ -1331,150 +1041,422 @@ app.get('/download-template', (req, res) => {
     res.setHeader('Content-Disposition', 'attachment; filename=AMI_Parts_Template.xlsx');
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.send(buf);
-  } catch(e) { console.error(e); res.status(500).send('Template generation failed'); }
+  } catch (e) { res.status(500).send('Template generation failed'); }
 });
 
 app.get('/excel-import', async (req, res) => {
   if (!isAuthenticated(req)) return res.redirect('/');
-  const catalog = await getAllCatalog();
-  const msg = req.query.msg || '';
-  const msgType = req.query.type || 'success';
-  const msgHTML = msg ? `<div class="alert alert-${msgType}" style="margin-bottom:16px;">${decodeURIComponent(msg)}</div>` : '';
-  const rows = catalog.map(c=>`<tr>
-    <td><span class="badge badge-blue">${c.partNo||'&mdash;'}</span></td>
-    <td>${c.partName||'&mdash;'}</td>
-    <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${c.companyName||'&mdash;'}</td>
-    <td>${c.size||'&mdash;'}</td>
-    <td style="font-family:monospace;font-size:12px;">${c.lotNo||'&mdash;'}</td>
-    <td>${c.quantity||'&mdash;'}</td>
-    <td style="font-family:monospace;font-size:12px;">${c.woNo||'&mdash;'}</td>
-    <td>${c.month||'&mdash;'}</td>
-    <td><a href="/catalog-delete/${c._id}" onclick="return confirm('Remove?')" class="btn btn-danger btn-sm">${I.trash}</a></td>
-  </tr>`).join('');
-  res.send(`${HEAD('Excel Import')}<body>${LAYOUT(`
-  <div class="page-header">
-    <div><h1 class="page-title">Excel Import</h1><p class="page-sub">Upload bulk part data &mdash; ${catalog.length} entries in catalog</p></div>
-    <div style="display:flex;gap:8px;">
-      <a href="/download-template" class="btn btn-success">${I.download} Download Template</a>
-      ${catalog.length>0?`<a href="/catalog-clear" onclick="return confirm('Clear ALL catalog entries?')" class="btn btn-danger">${I.trash} Clear All</a>`:''}
-    </div>
-  </div>
-  ${msgHTML}
-  <div class="grid-2" style="margin-bottom:20px;align-items:start;">
-    <div class="card" style="margin-bottom:0;">
-      <div class="card-header"><span class="card-title">How It Works</span></div>
-      <div class="card-body">
-        <div class="step-row"><div class="step-badge">1</div><div class="step-content"><div class="step-title">Download the Template</div><div class="step-desc">Click <strong>Download Template</strong> above. Open in Excel or Google Sheets.</div></div></div>
-        <div class="step-row"><div class="step-badge">2</div><div class="step-content"><div class="step-title">Fill in Your Part Data</div><div class="step-desc">One part per row. Fill all columns. <em>Leave Packer blank — entered manually.</em></div></div></div>
-        <div class="step-row"><div class="step-badge">3</div><div class="step-content"><div class="step-title">Upload the Filled File</div><div class="step-desc">Use the upload box. Supports .xlsx, .xls, .csv files.</div></div></div>
-        <div class="step-row" style="margin-bottom:0;"><div class="step-badge">4</div><div class="step-content"><div class="step-title">Smart Auto-fill on Generate Label</div><div class="step-desc">Go to <a href="/generate-form" style="color:#3b82f6;font-weight:600;">Generate Label</a>. Type any field to search &amp; auto-fill all fields instantly.</div></div></div>
-      </div>
-    </div>
-    <div class="card" style="margin-bottom:0;">
-      <div class="card-header"><span class="card-title">${I.upload} Upload Excel File</span></div>
-      <div class="card-body">
-        <form id="uploadForm" action="/upload-excel" method="POST" enctype="multipart/form-data">
-          <div class="upload-zone" id="dropZone" onclick="document.getElementById('excelFile').click()">
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-            <p id="dropText">Drag &amp; drop your Excel file here, or <strong style="color:#3b82f6;">click to browse</strong></p>
-            <small>Supports .xlsx, .xls, .csv &mdash; max 10 MB</small>
-          </div>
-          <input type="file" id="excelFile" name="excelFile" accept=".xlsx,.xls,.csv" style="display:none;" onchange="onFileSelected(this)">
-          <div id="filePreview" style="display:none;margin-top:14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 14px;">
-            <div style="display:flex;align-items:center;justify-content:space-between;">
-              <div><div style="font-size:13px;font-weight:700;color:#15803d;" id="fileName"></div><div style="font-size:11px;color:#4ade80;" id="fileSize"></div></div>
-              <button type="button" onclick="clearFile()" style="font-size:11px;color:#dc2626;background:none;border:none;cursor:pointer;">&#x2715; Remove</button>
-            </div>
-          </div>
-          <div style="display:flex;gap:10px;margin-top:14px;">
-            <select name="importMode" style="flex:1;">
-              <option value="append">Append to catalog (keep existing)</option>
-              <option value="replace">Replace all catalog entries</option>
-            </select>
-            <button type="submit" id="uploadBtn" class="btn btn-primary" disabled>${I.upload} Upload</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-header"><span class="card-title">Part Catalog &mdash; ${catalog.length} entries</span>${catalog.length>0?`<a href="/generate-form" class="btn btn-primary btn-sm">${I.plus} Generate Label</a>`:''}</div>
-    ${catalog.length===0?`<div class="empty">${I.excel}<p>No catalog entries yet.</p><a href="/download-template" class="btn btn-success">${I.download} Download Template</a></div>`
-    :`<div class="table-wrap"><table><thead><tr><th>Part No.</th><th>Part Name</th><th>Company</th><th>Size</th><th>Lot No.</th><th>Quantity</th><th>WO No.</th><th>Month</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`}
-  </div>
-  <script>
-    var dz=document.getElementById('dropZone');
-    ['dragenter','dragover'].forEach(function(e){dz.addEventListener(e,function(ev){ev.preventDefault();dz.classList.add('drag-over');});});
-    ['dragleave','drop'].forEach(function(e){dz.addEventListener(e,function(ev){ev.preventDefault();dz.classList.remove('drag-over');});});
-    dz.addEventListener('drop',function(ev){ev.preventDefault();var f=ev.dataTransfer.files[0];if(f){var dt=new DataTransfer();dt.items.add(f);document.getElementById('excelFile').files=dt.files;onFileSelected(document.getElementById('excelFile'));}});
-    function onFileSelected(input){if(!input.files||!input.files[0])return;var f=input.files[0];document.getElementById('fileName').textContent=f.name;document.getElementById('fileSize').textContent=(f.size/1024).toFixed(1)+' KB';document.getElementById('filePreview').style.display='block';document.getElementById('dropText').textContent='File selected: '+f.name;document.getElementById('uploadBtn').disabled=false;}
-    function clearFile(){document.getElementById('excelFile').value='';document.getElementById('filePreview').style.display='none';document.getElementById('dropText').innerHTML='Drag &amp; drop your Excel file here, or <strong style="color:#3b82f6;">click to browse</strong>';document.getElementById('uploadBtn').disabled=true;}
-  </script>
-  `,'excel')}`);
+  res.redirect('/generate-form');
 });
 
 app.post('/upload-excel', upload.single('excelFile'), async (req, res) => {
   if (!isAuthenticated(req)) return res.redirect('/');
-  if (!req.file) return res.redirect('/excel-import?type=error&msg='+encodeURIComponent('No file uploaded.'));
+  if (!req.file) return res.status(400).json({ error: 'No file uploaded.' });
   try {
     const { records, errors } = parseExcelBuffer(req.file.buffer);
-    if (records.length===0) {
+    if (records.length === 0) {
       const errMsg = errors.length ? errors.join(' | ') : 'No valid data rows found.';
-      return res.redirect('/excel-import?type=error&msg='+encodeURIComponent(errMsg));
+      return res.status(400).json({ error: errMsg });
     }
-    if (req.body.importMode==='replace') await clearCatalog();
+    if (req.body.importMode === 'replace') await clearCatalog();
     const now = new Date().toISOString();
-    await PartCatalog.insertMany(records.map(r=>({...r,uploadedAt:now,source:'excel'})),{ordered:false});
-    let msg=`&#x2713; Successfully imported <strong>${records.length} parts</strong> into catalog.`;
-    if (errors.length) msg+=` <span style="color:#92400e;">${errors.length} row(s) skipped.</span>`;
-    res.redirect('/excel-import?type=success&msg='+encodeURIComponent(msg));
-  } catch(e) {
-    console.error('Excel upload error:',e);
-    res.redirect('/excel-import?type=error&msg='+encodeURIComponent('Failed to parse file: '+e.message));
+    await PartCatalog.insertMany(records.map(r => ({ ...r, uploadedAt: now, source: 'excel' })), { ordered: false });
+    res.json({ success: true, count: records.length, skipped: errors.length });
+  } catch (e) {
+    console.error('Excel upload error:', e);
+    res.status(500).json({ error: 'Failed to parse file: ' + e.message });
   }
+});
+
+app.post('/bulk-parse-excel', upload.single('excelFile'), async (req, res) => {
+  if (!isAuthenticated(req)) return res.status(401).json({ error: 'Unauthorized' });
+  if (!req.file) return res.status(400).json({ error: 'No file uploaded.' });
+  try {
+    const { records, errors } = parseExcelBuffer(req.file.buffer);
+    records.forEach(r => {
+      if (!r.month) r.month = String(new Date().getMonth() + 1).padStart(2, '0');
+      else r.month = String(parseInt(r.month) || 1).padStart(2, '0');
+    });
+    res.json({ records, errors });
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to parse: ' + e.message });
+  }
+});
+
+app.get('/api/qr-dataurl', async (req, res) => {
+  if (!isAuthenticated(req)) return res.status(401).json({ error: 'Unauthorized' });
+  const text = req.query.text || '';
+  if (!text) return res.status(400).json({ error: 'No text provided' });
+  try {
+    const dataUrl = await QRCode.toDataURL(text, { width: 400, margin: 1, errorCorrectionLevel: 'M' });
+    res.json({ dataUrl });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/api/bulk-save-asset', async (req, res) => {
+  if (!isAuthenticated(req)) return res.status(401).json({ error: 'Unauthorized' });
+  try {
+    const r = req.body;
+    if (!r.partNo || !r.companyName) return res.status(400).json({ error: 'Missing required fields' });
+    const assetKey = generateAssetKey(r.partNo, r.lotNo || 'BULK');
+    const asset = {
+      name: assetKey,
+      companyName: (r.companyName || '').trim(),
+      partNo: (r.partNo || '').trim(),
+      partName: (r.partName || '').trim(),
+      size: (r.size || '').trim(),
+      lotNo: (r.lotNo || '').trim(),
+      quantity: (r.quantity || '').trim(),
+      packer: (r.packer || '').trim(),
+      month: String(r.month || '01').padStart(2, '0'),
+      woNo: (r.woNo || '').trim(),
+      createdAt: new Date().toISOString(),
+      scanHistory: []
+    };
+    await upsertAsset(asset);
+    res.json({ success: true, key: assetKey });
+  } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 app.get('/catalog-delete/:id', async (req, res) => {
   if (!isAuthenticated(req)) return res.redirect('/');
   await deleteCatalogItem(req.params.id);
-  res.redirect('/excel-import?type=success&msg='+encodeURIComponent('Entry removed.'));
+  res.redirect('/generate-form');
 });
 
 app.get('/catalog-clear', async (req, res) => {
   if (!isAuthenticated(req)) return res.redirect('/');
   await clearCatalog();
-  res.redirect('/excel-import?type=success&msg='+encodeURIComponent('All catalog entries cleared.'));
+  res.redirect('/generate-form');
 });
 
 app.get('/api/catalog', async (req, res) => {
-  if (!isAuthenticated(req)) return res.status(401).json({error:'Unauthorized'});
-  const q = (req.query.q||'').trim();
-  let filter={};
-  if(q) filter={$or:[{partNo:{$regex:q,$options:'i'}},{partName:{$regex:q,$options:'i'}},{lotNo:{$regex:q,$options:'i'}},{companyName:{$regex:q,$options:'i'}},{woNo:{$regex:q,$options:'i'}}]};
+  if (!isAuthenticated(req)) return res.status(401).json({ error: 'Unauthorized' });
+  const q = (req.query.q || '').trim();
+  let filter = {};
+  if (q) filter = { $or: [{ partNo: { $regex: q, $options: 'i' } }, { partName: { $regex: q, $options: 'i' } }, { lotNo: { $regex: q, $options: 'i' } }, { companyName: { $regex: q, $options: 'i' } }, { woNo: { $regex: q, $options: 'i' } }] };
   const items = await PartCatalog.find(filter).limit(20).lean();
-  res.json(items.map(c=>({_id:c._id,companyName:c.companyName||'',partNo:c.partNo||'',partName:c.partName||'',size:c.size||'',lotNo:c.lotNo||'',quantity:c.quantity||'',woNo:c.woNo||'',month:c.month||''})));
+  res.json(items.map(c => ({ _id: c._id, companyName: c.companyName || '', partNo: c.partNo || '', partName: c.partName || '', size: c.size || '', lotNo: c.lotNo || '', quantity: c.quantity || '', packer: c.packer || '', woNo: c.woNo || '', month: c.month || '' })));
 });
 
-app.get('/generate-form', async (req, res) => {
+// ══════════════════════════════════════════════════════════════════════════════
+// BULK GENERATE PAGE — Clean: Step1 Upload → Step2 Preview → Step3 Generate
+// ══════════════════════════════════════════════════════════════════════════════
+app.get('/bulk-generate', async (req, res) => {
   if (!isAuthenticated(req)) return res.redirect('/');
-  const currentMonth = new Date().getMonth()+1;
-  const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  const monthOpts = MONTH_NAMES.map((n,i)=>{const v=String(i+1).padStart(2,'0');return `<option value="${v}"${i+1===currentMonth?' selected':''}>${v} &mdash; ${n}</option>`;}).join('');
-  const catalogCount = await PartCatalog.countDocuments();
-  res.send(`${HEAD('Generate Label')}<body>${LAYOUT(`
-  <div class="page-header"><div><h1 class="page-title">Generate QR Label</h1><p class="page-sub">Fill in part details &mdash; type any field to search catalog</p></div></div>
-  <div style="max-width:680px;">
-    <div class="mini-upload-bar">
-      <div>
-        <div class="mu-info">&#x2728; Excel Catalog Active &mdash; <strong>${catalogCount} part${catalogCount!==1?'s':''} loaded</strong></div>
-        <div class="mu-sub">Type in <strong>any field</strong> to search &amp; auto-fill &bull; <a href="/excel-import" style="color:#1d4ed8;">Manage catalog</a></div>
-      </div>
-      <div style="display:flex;gap:8px;flex-shrink:0;">
-        <label for="quickExcelFile" class="btn btn-success btn-sm" style="cursor:pointer;">${I.upload} Quick Upload Excel</label>
-        <input type="file" id="quickExcelFile" accept=".xlsx,.xls,.csv" style="display:none;" onchange="quickUploadExcel(this)">
+  res.send(`${HEAD('Bulk Label Generator')}<body>${LAYOUT(`
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Bulk Label Generator</h1>
+      <p class="page-sub">Upload Excel &rarr; auto-generates one QR label per row, print all at once</p>
+    </div>
+    <a href="/download-template" class="btn btn-secondary">${I.download} Download Template</a>
+  </div>
+
+  <div style="max-width:900px;">
+
+    <!-- STEP 1 -->
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-header"><span class="card-title">${I.upload}&nbsp; Step 1 &mdash; Upload Your Excel File</span></div>
+      <div class="card-body">
+        <div id="bulkDropZone" class="upload-zone" onclick="document.getElementById('bulkFile').click()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:44px;height:44px;color:#94a3b8;margin:0 auto 12px;display:block;">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          <p><strong>Click to browse</strong> or drag &amp; drop your Excel file here</p>
+          <small>Supports .xlsx &nbsp;/&nbsp; .xls &nbsp;/&nbsp; .csv &mdash; one label will be generated per data row</small>
+        </div>
+        <input type="file" id="bulkFile" accept=".xlsx,.xls,.csv" style="display:none;" onchange="handleBulkUpload(this)">
+        <div id="bulkUploadStatus" style="margin-top:10px;"></div>
+        <div style="margin-top:12px;padding:10px 14px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:7px;font-size:12px;color:#64748b;">
+          <strong style="color:#374151;">Expected columns:</strong> Company Name &nbsp;&bull;&nbsp; Part No &nbsp;&bull;&nbsp; Part Name &nbsp;&bull;&nbsp; Size &nbsp;&bull;&nbsp; Lot No &nbsp;&bull;&nbsp; Quantity &nbsp;&bull;&nbsp; Packer Name &nbsp;&bull;&nbsp; WO No &nbsp;&bull;&nbsp; Month (1-12)
+          &nbsp; &mdash; &nbsp; <a href="/download-template" style="color:#3b82f6;font-weight:600;">Download sample template</a>
+        </div>
       </div>
     </div>
-    <div id="quickUploadStatus"></div>
+
+    <!-- STEP 2: Preview (hidden until upload) -->
+    <div id="previewSection" style="display:none;">
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-header">
+          <span class="card-title">${I.list}&nbsp; Step 2 &mdash; Preview &amp; Validate</span>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span id="rowCountBadge" class="badge badge-blue"></span>
+            <span id="errorCountBadge" class="badge badge-orange" style="display:none;"></span>
+            <button class="btn btn-secondary btn-sm" onclick="document.getElementById('bulkFile').click()">${I.upload} Change File</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table id="previewTable">
+            <thead><tr>
+              <th>#</th><th>Part No.</th><th>Part Name</th><th>Company</th>
+              <th>Lot No.</th><th>Size</th><th>Qty</th><th>Packer</th>
+              <th>WO No.</th><th>Mo.</th><th>Status</th>
+            </tr></thead>
+            <tbody id="previewBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- STEP 3: Bulk Generate — simple, no print options UI -->
+      <div class="card">
+        <div class="card-header"><span class="card-title">${I.bolt}&nbsp; Step 3 &mdash; Bulk Generate Labels</span></div>
+        <div class="card-body">
+          <div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;padding:12px 16px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:16px;">
+            <label style="display:flex;align-items:center;gap:7px;font-weight:500;cursor:pointer;margin-bottom:0;font-size:13px;color:#374151;">
+              <input type="checkbox" id="blkShowQR" checked style="width:15px;height:15px;accent-color:#3b82f6;"> Show QR code
+            </label>
+            <label style="display:flex;align-items:center;gap:7px;font-weight:500;cursor:pointer;margin-bottom:0;font-size:13px;color:#374151;">
+              <input type="checkbox" id="blkShowHeader" checked style="width:15px;height:15px;accent-color:#3b82f6;"> Company header
+            </label>
+            <label style="display:flex;align-items:center;gap:7px;font-weight:500;cursor:pointer;margin-bottom:0;font-size:13px;color:#374151;">
+              <input type="checkbox" id="blkShowBorder" checked style="width:15px;height:15px;accent-color:#3b82f6;"> Show border
+            </label>
+            <label style="display:flex;align-items:center;gap:7px;font-weight:500;cursor:pointer;margin-bottom:0;font-size:13px;color:#374151;">
+              <input type="checkbox" id="blkSaveAssets" checked style="width:15px;height:15px;accent-color:#16a34a;"> Save to Assets DB
+            </label>
+          </div>
+          <button class="btn btn-primary btn-block" style="padding:14px;font-size:15px;font-weight:700;border-radius:8px;" id="generateAllBtn" onclick="generateAllLabels()">
+            ${I.bolt}&nbsp; Bulk Generate Labels
+          </button>
+          <div id="generateStatus" style="margin-top:14px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- How it works (shown before upload) -->
+    <div class="card" style="margin-top:20px;" id="howItWorksCard">
+      <div class="card-header"><span class="card-title">How it works</span></div>
+      <div class="card-body">
+        <div class="step-row"><div class="step-badge">1</div><div class="step-content"><div class="step-title">Upload your Excel file</div><div class="step-desc">Each data row becomes one unique label. Use the template columns: Company Name, Part No, Part Name, Size, Lot No, Quantity, Packer Name, WO No, Month (1-12).</div></div></div>
+        <div class="step-row"><div class="step-badge">2</div><div class="step-content"><div class="step-title">Preview and validate all rows</div><div class="step-desc">A table shows every row with a status badge. Rows with missing required fields are highlighted in red and skipped during generation.</div></div></div>
+        <div class="step-row" style="margin-bottom:0;"><div class="step-badge">3</div><div class="step-content"><div class="step-title">Bulk generate all labels at once</div><div class="step-desc">QR codes are generated for every valid row and all labels open in one print dialog. Optionally save every row to the Assets database.</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function(){
+    var parsedRows = [];
+
+    var dz = document.getElementById('bulkDropZone');
+    ['dragenter','dragover'].forEach(function(ev){ dz.addEventListener(ev, function(e){ e.preventDefault(); dz.classList.add('drag-over'); }); });
+    ['dragleave','drop'].forEach(function(ev){ dz.addEventListener(ev, function(e){ e.preventDefault(); dz.classList.remove('drag-over'); }); });
+    dz.addEventListener('drop', function(e){
+      e.preventDefault();
+      var f = e.dataTransfer.files[0];
+      if(f){ var dt = new DataTransfer(); dt.items.add(f); document.getElementById('bulkFile').files = dt.files; handleBulkUpload(document.getElementById('bulkFile')); }
+    });
+
+    window.handleBulkUpload = function(input){
+      if(!input.files || !input.files[0]) return;
+      var f = input.files[0];
+      var st = document.getElementById('bulkUploadStatus');
+      st.innerHTML = '<div class="alert alert-info" style="margin-bottom:0;">&#x23F3; Reading <strong>' + f.name + '</strong>&hellip;</div>';
+      var fd = new FormData();
+      fd.append('excelFile', f);
+      fetch('/bulk-parse-excel', { method:'POST', body: fd })
+        .then(function(r){ return r.json(); })
+        .then(function(data){
+          if(data.error){ st.innerHTML = '<div class="alert alert-error" style="margin-bottom:0;">&#x2717; ' + data.error + '</div>'; return; }
+          parsedRows = data.records;
+          renderPreview(parsedRows, data.errors || []);
+          var errTxt = data.errors && data.errors.length ? ' &mdash; <span style="color:#d97706;">' + data.errors.length + ' row' + (data.errors.length>1?'s':'') + ' skipped</span>' : '';
+          st.innerHTML = '<div class="alert alert-success" style="margin-bottom:0;">&#x2713; Loaded <strong>' + parsedRows.length + ' valid row' + (parsedRows.length!==1?'s':'') + '</strong>' + errTxt + '</div>';
+          document.getElementById('howItWorksCard').style.display = 'none';
+        })
+        .catch(function(e){ st.innerHTML = '<div class="alert alert-error" style="margin-bottom:0;">&#x2717; Upload failed: ' + e.message + '</div>'; });
+    };
+
+    function renderPreview(rows, errors){
+      var badge = document.getElementById('rowCountBadge');
+      badge.textContent = rows.length + ' label' + (rows.length !== 1 ? 's' : '') + ' ready';
+      var errBadge = document.getElementById('errorCountBadge');
+      if(errors.length){ errBadge.textContent = errors.length + ' skipped'; errBadge.style.display='inline-flex'; } else { errBadge.style.display='none'; }
+      var tbody = document.getElementById('previewBody');
+      tbody.innerHTML = rows.map(function(r, i){
+        var missing = [];
+        if(!r.partNo) missing.push('Part No');
+        if(!r.companyName) missing.push('Company');
+        if(!r.partName) missing.push('Part Name');
+        if(!r.lotNo) missing.push('Lot No');
+        if(!r.quantity) missing.push('Qty');
+        if(!r.packer) missing.push('Packer');
+        if(!r.woNo) missing.push('WO No');
+        var ok = missing.length === 0;
+        return '<tr style="' + (ok ? '' : 'background:#fef2f2;') + '">'
+          + '<td style="color:#9ca3af;font-size:12px;font-weight:600;">' + (i+1) + '</td>'
+          + '<td><span class="badge badge-blue" style="font-family:monospace;">' + esc(r.partNo||'—') + '</span></td>'
+          + '<td style="font-weight:500;">' + esc(r.partName||'—') + '</td>'
+          + '<td style="font-size:12px;">' + esc(r.companyName||'—') + '</td>'
+          + '<td style="font-family:monospace;font-size:12px;">' + esc(r.lotNo||'—') + '</td>'
+          + '<td style="font-size:12px;">' + esc(r.size||'—') + '</td>'
+          + '<td>' + esc(r.quantity||'—') + '</td>'
+          + '<td>' + esc(r.packer||'—') + '</td>'
+          + '<td style="font-family:monospace;font-size:11px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + esc(r.woNo||'') + '">' + esc(r.woNo||'—') + '</td>'
+          + '<td style="text-align:center;">' + esc(r.month||'—') + '</td>'
+          + '<td>' + (ok
+              ? '<span class="badge badge-green">&#x2713; OK</span>'
+              : '<span class="badge badge-orange" title="Missing: ' + missing.join(', ') + '">&#x26A0; ' + missing.join(', ') + '</span>')
+          + '</td></tr>';
+      }).join('');
+      document.getElementById('previewSection').style.display = 'block';
+    }
+
+    function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    ${sharedBuildLabelFn().replace(/\/\//g, '')}
+
+    window.generateAllLabels = async function(){
+      var validRows = parsedRows.filter(function(r){
+        return r.partNo && r.companyName && r.partName && r.lotNo && r.quantity && r.packer && r.woNo;
+      });
+      if(validRows.length === 0){
+        document.getElementById('generateStatus').innerHTML = '<div class="alert alert-error">No valid rows to print. Fix missing required fields and re-upload.</div>';
+        return;
+      }
+      var btn = document.getElementById('generateAllBtn');
+      btn.disabled = true;
+      var statusEl = document.getElementById('generateStatus');
+
+      // Fixed defaults: A4 Landscape, 2 per page side-by-side, 8mm margin, 1 copy
+      var cols = 2, rows2 = 1;
+      var pw = 297, ph = 210;
+      var margin = 8;
+      var copies = 1;
+      var showQR  = document.getElementById('blkShowQR').checked;
+      var showCo  = document.getElementById('blkShowHeader').checked;
+      var showBdr = document.getElementById('blkShowBorder').checked;
+      var saveDB  = document.getElementById('blkSaveAssets').checked;
+      var gap = 3;
+      var usableW = pw - margin*2, usableH = ph - margin*2;
+      var lw = Math.floor((usableW - gap*(cols-1)) / cols);
+      var lh = Math.floor((usableH - gap*(rows2-1)) / rows2);
+      var border  = showBdr ? '1.5px solid #111' : '1px solid #ccc';
+      var inner   = showBdr ? '1px solid #111' : '0.5px solid #ddd';
+
+      statusEl.innerHTML = '<div class="bulk-progress">'
+        + '<div style="font-size:13px;font-weight:600;color:#15803d;" id="progLabel">&#x23F3; Starting&hellip;</div>'
+        + '<div class="bulk-progress-bar-wrap"><div class="bulk-progress-bar" id="progBar" style="width:0%;"></div></div>'
+        + '</div>';
+
+      var labelsHtml = '';
+      for(var i = 0; i < validRows.length; i++){
+        var r = validRows[i];
+        document.getElementById('progLabel').textContent = 'Generating QR ' + (i+1) + ' of ' + validRows.length + ' \u2014 ' + (r.partName||r.partNo);
+        document.getElementById('progBar').style.width = Math.round((i/validRows.length)*100) + '%';
+
+        var qrContent = 'COMPANY:'+r.companyName+',PARTNO:'+r.partNo+',LOT:'+r.lotNo+',QTY:'+r.quantity+',PACKER:'+r.packer;
+        var resp = await fetch('/api/qr-dataurl?text=' + encodeURIComponent(qrContent));
+        var qrData = await resp.json();
+        var qrUrl = qrData.dataUrl || '';
+
+        if(saveDB){
+          await fetch('/api/bulk-save-asset', {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify(r)
+          });
+        }
+        for(var c = 0; c < copies; c++){
+          labelsHtml += buildLabel(r, qrUrl, showQR, showCo, border, inner, lw, lh);
+        }
+      }
+      document.getElementById('progBar').style.width = '100%';
+      document.getElementById('progLabel').textContent = '\u2713 All ' + validRows.length + ' labels ready \u2014 opening print dialog\u2026';
+
+      var old = document.getElementById('_blkPrintStyle');
+      if(old) old.remove();
+      var s = document.createElement('style');
+      s.id = '_blkPrintStyle';
+      s.innerHTML = '@media print{'
+        + '@page{size:'+pw+'mm '+ph+'mm;margin:'+margin+'mm;}'
+        + '*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}'
+        + 'html,body{margin:0!important;padding:0!important;}'
+        + 'body *{visibility:hidden!important;}'
+        + '#_BLKPS,#_BLKPS *{visibility:visible!important;}'
+        + '#_BLKPS{position:fixed!important;top:0!important;left:0!important;'
+          + 'display:grid!important;'
+          + 'grid-template-columns:repeat('+cols+','+lw+'mm)!important;'
+          + 'grid-auto-rows:'+lh+'mm!important;'
+          + 'gap:'+gap+'mm!important;'
+          + 'margin:0!important;padding:0!important;background:#fff!important;}'
+        + '}';
+      document.head.appendChild(s);
+      var sheet = document.getElementById('_BLKPS');
+      if(!sheet){ sheet = document.createElement('div'); sheet.id = '_BLKPS'; document.body.appendChild(sheet); }
+      sheet.innerHTML = labelsHtml;
+      sheet.style.cssText = 'display:none;';
+
+      btn.disabled = false;
+
+ document.getElementById('progLabel').textContent = '\u2713 All ' + validRows.length + ' labels ready \u2014 click "Print Now" to print.';
+btn.disabled = false;
+
+// Show a "Print Now" button instead of auto-printing
+statusEl.innerHTML = '<div class="alert alert-success" style="display:flex;align-items:center;justify-content:space-between;gap:12px;">'
+  + '<span>&#x2713; <strong>' + validRows.length + ' labels generated</strong> and ready to print.</span>'
+  + '<button onclick="doPrint()" class="btn btn-primary btn-sm" style="flex-shrink:0;">&#x1F5A8; Print Now</button>'
+  + '</div>';
+
+window.doPrint = function(){
+  setTimeout(function(){
+    sheet.style.display = 'grid';
+    sheet.style.gridTemplateColumns = 'repeat('+cols+','+lw+'mm)';
+    sheet.style.gridAutoRows = lh+'mm';
+    sheet.style.gap = gap+'mm';
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){
+      window.print();
+      setTimeout(function(){ sheet.style.display='none'; sheet.innerHTML=''; }, 2000);
+    }); });
+  }, 350);
+};
+    };
+
+  })();
+  </script>
+  `, 'bulk')}`);
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// GENERATE FORM — Fixed bolt icon, compact upload panel
+// ══════════════════════════════════════════════════════════════════════════════
+app.get('/generate-form', async (req, res) => {
+  if (!isAuthenticated(req)) return res.redirect('/');
+  const currentMonth = new Date().getMonth() + 1;
+  const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const monthOpts = MONTH_NAMES.map((n, i) => { const v = String(i + 1).padStart(2, '0'); return `<option value="${v}"${i + 1 === currentMonth ? ' selected' : ''}>${v} &mdash; ${n}</option>`; }).join('');
+  const catalogCount = await PartCatalog.countDocuments();
+
+  res.send(`${HEAD('Generate Label')}<body>${LAYOUT(`
+  <div class="page-header"><div><h1 class="page-title">Generate QR Label</h1><p class="page-sub">Upload Excel or type any field to search catalog</p></div></div>
+  <div style="max-width:700px;">
+    <div id="excelUploadPanel" style="background:${catalogCount > 0 ? 'linear-gradient(135deg,#f0fdf4,#dcfce7)' : 'linear-gradient(135deg,#f8fafc,#eff6ff)'};border:2px ${catalogCount > 0 ? 'solid #22c55e' : 'dashed #cbd5e1'};border-radius:12px;padding:16px 20px;margin-bottom:20px;transition:all 0.3s;">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div onclick="document.getElementById('inlineExcelFile').click()" style="width:48px;height:48px;background:${catalogCount > 0 ? '#16a34a' : '#3b82f6'};border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;">
+          <svg fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2" style="width:24px;height:24px;"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:14px;font-weight:700;color:#111;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            Upload Excel to Auto-fill
+            <span id="catalogCountBadge" style="background:${catalogCount > 0 ? '#dcfce7' : '#f1f5f9'};color:${catalogCount > 0 ? '#15803d' : '#64748b'};border:1px solid ${catalogCount > 0 ? '#86efac' : '#cbd5e1'};border-radius:99px;font-size:11px;font-weight:700;padding:2px 10px;">${catalogCount > 0 ? catalogCount + ' part' + (catalogCount !== 1 ? 's' : '') + ' ready' : 'No catalog yet'}</span>
+          </div>
+          <div style="font-size:12px;color:#64748b;margin-top:2px;">
+            ${catalogCount > 0 ? 'Catalog loaded &mdash; type any field below to search &amp; auto-fill &middot;' : 'Drop your .xlsx/.xls/.csv here &mdash; all fields fill instantly &middot;'}
+            <a href="/download-template" style="color:#3b82f6;font-weight:600;">Download template</a> &nbsp;&middot;&nbsp;
+            <a href="/bulk-generate" style="color:#7c3aed;font-weight:600;display:inline-flex;align-items:center;gap:3px;vertical-align:middle;"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" style="width:13px;height:13px;flex-shrink:0;"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg> Bulk Generate</a>
+          </div>
+          <div id="inlineUploadStatus" style="margin-top:4px;"></div>
+        </div>
+        <label style="cursor:pointer;flex-shrink:0;">
+          <div style="display:flex;align-items:center;gap:6px;padding:8px 14px;background:#fff;border:1.5px solid #d1d5db;border-radius:8px;font-size:12px;font-weight:600;color:#374151;white-space:nowrap;">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+            Browse File
+          </div>
+          <input type="file" id="inlineExcelFile" accept=".xlsx,.xls,.csv" style="display:none;" onchange="handleInlineExcel(this)">
+        </label>
+      </div>
+    </div>
     <div class="catalog-fill-banner" id="catalogFillBanner" style="display:none;">
       <div>
         <div style="font-size:12px;font-weight:700;color:#15803d;">&#x2713; All fields auto-filled from catalog</div>
@@ -1483,28 +1465,22 @@ app.get('/generate-form', async (req, res) => {
       <button id="clearFillBtn" onclick="clearCatalogFill()" class="btn btn-secondary btn-sm" style="display:none;flex-shrink:0;">&#x2715; Clear &amp; Reset</button>
     </div>
     <div class="card">
-      <div class="card-header"><span class="card-title">Part Information</span><span style="font-size:11px;color:#9ca3af;">* Required</span></div>
+      <div class="card-header"><span class="card-title">Part Information</span><span style="font-size:11px;color:#9ca3af;">* Required &mdash; type any field to search catalog</span></div>
       <div class="card-body">
         <form action="/generate" method="POST" id="genForm">
           <div id="acList" class="autocomplete-list" style="position:fixed;z-index:600;min-width:340px;border-radius:8px;border-top:1px solid #d1d5db;"></div>
-          <div class="form-1">
-            <label>Part No. *</label>
-            <input type="text" name="partNo" id="partNo" placeholder="Type to search catalog by Part No&hellip;" required autocomplete="off">
-          </div>
-          <div class="form-1">
-            <label>Company Name *</label>
-            <input type="text" name="companyName" id="companyName" placeholder="Type to search or enter company name&hellip;" required autocomplete="off">
-          </div>
+          <div class="form-1"><label>Part No. *</label><input type="text" name="partNo" id="partNo" placeholder="Type to search catalog by Part No&hellip;" required autocomplete="off"></div>
+          <div class="form-1"><label>Company Name *</label><input type="text" name="companyName" id="companyName" placeholder="Type to search or enter company name&hellip;" required autocomplete="off"></div>
           <div class="form-row">
             <div><label>Part Name *</label><input type="text" name="partName" id="partName" placeholder="Type to search by Part Name&hellip;" required autocomplete="off"></div>
             <div><label>Size</label><input type="text" name="size" id="size" placeholder="e.g. 3MMX100MMX200MM" autocomplete="off"></div>
           </div>
           <div class="form-row">
             <div><label>Lot No. *</label><input type="text" name="lotNo" id="lotNo" placeholder="Type to search by Lot No&hellip;" required autocomplete="off"></div>
-            <div><label>Quantity *</label><input type="text" name="quantity" id="quantity" placeholder="e.g. 100 Pcs" required autocomplete="off"></div>
+            <div><label>Qty *</label><input type="text" name="quantity" id="quantity" placeholder="e.g. 100 Pcs" required autocomplete="off"></div>
           </div>
           <div class="form-row">
-            <div><label>Packer Name * <span style="font-weight:400;color:#9ca3af;">(enter manually)</span></label><input type="text" name="packer" id="packer" placeholder="Enter packer name or ID" required autocomplete="off"></div>
+            <div><label>Packer Name *</label><input type="text" name="packer" id="packer" placeholder="Enter packer name or ID" required autocomplete="off"></div>
             <div><label>WO No. *</label><input type="text" name="woNo" id="woNo" placeholder="Type to search by WO No&hellip;" required autocomplete="off"></div>
           </div>
           <div class="form-row" style="margin-bottom:20px;">
@@ -1517,35 +1493,13 @@ app.get('/generate-form', async (req, res) => {
     </div>
   </div>
   ${generateFormScript(catalogCount)}
-  <script>
-  (function(){
-    var acList=document.getElementById('acList');
-    var searchFields=['partNo','partName','lotNo','companyName','woNo'];
-    searchFields.forEach(function(id){
-      var el=document.getElementById(id);
-      if(!el) return;
-      el.addEventListener('focus',function(){positionDropdown(this);});
-      el.addEventListener('input',function(){positionDropdown(this);});
-    });
-    function positionDropdown(el){
-      var rect=el.getBoundingClientRect();
-      acList.style.top=(rect.bottom+window.scrollY)+'px';
-      acList.style.left=rect.left+'px';
-      acList.style.width=rect.width+'px';
-    }
-    window.addEventListener('scroll',function(){
-      var active=document.activeElement;
-      if(active&&searchFields.indexOf(active.id)!==-1) positionDropdown(active);
-    });
-  })();
-  </script>
-  `,'gen')}`);
+  `, 'gen')}`);
 });
 
 app.post('/generate', async (req, res) => {
   if (!isAuthenticated(req)) return res.redirect('/');
   const { companyName, partNo, partName, size, lotNo, quantity, packer, month, woNo } = req.body;
-  if (!companyName||!partNo||!partName||!lotNo||!quantity||!packer||!month||!woNo) {
+  if (!companyName || !partNo || !partName || !lotNo || !quantity || !packer || !month || !woNo) {
     return res.status(400).send(`${HEAD('Error')}<body><div class="auth-wrap"><div style="max-width:380px;width:100%;"><div class="card card-body">
       <div class="alert alert-error">Please fill in all required fields.</div>
       <a href="/generate-form" class="btn btn-secondary btn-block">&larr; Go Back</a>
@@ -1553,14 +1507,15 @@ app.post('/generate', async (req, res) => {
   }
   const assetKey = generateAssetKey(partNo, lotNo);
   const asset = {
-    name:assetKey, companyName:companyName.trim(), partNo:partNo.trim(), partName:partName.trim(),
-    size:size?.trim()||'', lotNo:lotNo.trim(), quantity:quantity.trim(), packer:packer.trim(),
-    month:String(month).padStart(2,'0'), woNo:woNo.trim(), createdAt:new Date().toISOString(), scanHistory:[]
+    name: assetKey, companyName: companyName.trim(), partNo: partNo.trim(), partName: partName.trim(),
+    size: size?.trim() || '', lotNo: lotNo.trim(), quantity: quantity.trim(), packer: packer.trim(),
+    month: String(month).padStart(2, '0'), woNo: woNo.trim(), createdAt: new Date().toISOString(), scanHistory: []
   };
   await upsertAsset(asset);
   const qrText = buildQrContent(asset);
   try {
-    const qrDataUrl = await QRCode.toDataURL(qrText, {width:300,margin:1,color:{dark:'#000000',light:'#ffffff'},errorCorrectionLevel:'M'});
+    const qrDataUrl = await QRCode.toDataURL(qrText, { width: 400, margin: 1, color: { dark: '#000000', light: '#ffffff' }, errorCorrectionLevel: 'M' });
+    const monthNum = String(month).padStart(2, '0');
     res.send(`${HEAD('Label Created')}<body>${LAYOUT(`
     <div class="page-header">
       <div><h1 class="page-title">Label Created</h1><p class="page-sub">Saved successfully</p></div>
@@ -1574,8 +1529,8 @@ app.post('/generate', async (req, res) => {
     <div style="overflow-x:auto;">
       <div class="ami-label">
         <div class="ami-label-header">
-          <div class="ami-label-company"><div style="font-size:9px;font-weight:bold;letter-spacing:0.1em;color:#555;margin-bottom:3px;">COMPANY</div><div class="co-name">${companyName.toUpperCase()}</div></div>
-          <div class="ami-label-amino"><div class="ami-star">* AMI *</div><div class="ami-num">${String(month).padStart(2,'0')}</div></div>
+          <div class="ami-label-company"><div class="co-name">${companyName.toUpperCase()}</div></div>
+          <div class="ami-label-amino"><div class="ami-star">* AMI *</div><div class="ami-num">${monthNum}</div></div>
           <div class="ami-label-rohs"><div class="rohs-box">ROHS 2<br>FREE</div></div>
         </div>
         <div class="ami-field-row cols-2">
@@ -1583,16 +1538,16 @@ app.post('/generate', async (req, res) => {
           <div class="ami-field"><div class="f-label">Part Name</div><div class="f-value">${partName.trim()}</div></div>
         </div>
         <div class="ami-field-row cols-2">
-          <div class="ami-field"><div class="f-label">Size</div><div class="f-value">${size?.trim()||'&mdash;'}</div></div>
+          <div class="ami-field"><div class="f-label">Size</div><div class="f-value">${size?.trim() || '&mdash;'}</div></div>
           <div class="ami-field"><div class="f-label">Lot No.</div><div class="f-value mono">${lotNo.trim()}</div></div>
         </div>
         <div class="ami-field-row cols-2">
-          <div class="ami-field"><div class="f-label">Quantity</div><div class="f-value large">${quantity.trim()}</div></div>
+          <div class="ami-field"><div class="f-label">QTY</div><div class="f-value large">${quantity.trim()}</div></div>
           <div class="ami-field"><div class="f-label">Packer</div><div class="f-value">${packer.trim()}</div></div>
         </div>
         <div class="ami-label-bottom">
-          <div class="ami-qr-cell"><div class="qr-label-text">QR CODE</div><img src="${qrDataUrl}" alt="QR"><div class="qr-scan-text">SCAN FOR DETAILS</div></div>
-          <div class="ami-wo-cell"><div><div class="wo-label">WO NO.</div><div class="wo-value">${woNo.trim()}</div></div></div>
+          <div class="ami-qr-cell"><img src="${qrDataUrl}" alt="QR"></div>
+          <div class="ami-wo-cell"><div class="wo-label">WO NO.</div><div class="wo-value">${woNo.trim()}</div></div>
         </div>
       </div>
     </div>
@@ -1602,16 +1557,16 @@ app.post('/generate', async (req, res) => {
       <a href="/labels" class="btn btn-secondary btn-block">${I.label} View All Labels</a>
     </div>
     ${printModalHTML()}
-    `,'gen')}${printModalScript(qrDataUrl, asset)}`);
-  } catch(err) { console.error(err); res.status(500).send('Error generating QR'); }
+    `, 'gen')}${printModalScript(qrDataUrl, asset)}`);
+  } catch (err) { console.error(err); res.status(500).send('Error generating QR'); }
 });
 
 app.get('/edit/:id', async (req, res) => {
   if (!isAuthenticated(req)) return res.redirect('/');
   const asset = await getAsset(req.params.id);
   if (!asset) return res.redirect('/labels');
-  const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  const monthOpts = MONTH_NAMES.map((n,i)=>{const v=String(i+1).padStart(2,'0');return `<option value="${v}"${v===asset.month?' selected':''}>${v} &mdash; ${n}</option>`;}).join('');
+  const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const monthOpts = MONTH_NAMES.map((n, i) => { const v = String(i + 1).padStart(2, '0'); return `<option value="${v}"${v === asset.month ? ' selected' : ''}>${v} &mdash; ${n}</option>`; }).join('');
   const successMsg = req.query.success ? `<div class="alert alert-success" style="margin-bottom:16px;">&#x2713; Label updated! <a href="/labels" style="color:#15803d;font-weight:600;">View Labels</a></div>` : '';
   res.send(`${HEAD('Edit Label')}<body>${LAYOUT(`
   <div class="page-header">
@@ -1624,15 +1579,15 @@ app.get('/edit/:id', async (req, res) => {
         <form action="/edit/${req.params.id}" method="POST">
           <div class="form-1"><label>Company Name *</label><input type="text" name="companyName" value="${asset.companyName}" required></div>
           <div class="form-row"><div><label>Part No. *</label><input type="text" name="partNo" value="${asset.partNo}" required></div><div><label>Part Name *</label><input type="text" name="partName" value="${asset.partName}" required></div></div>
-          <div class="form-row"><div><label>Size</label><input type="text" name="size" value="${asset.size||''}"></div><div><label>Lot No. *</label><input type="text" name="lotNo" value="${asset.lotNo}" required></div></div>
-          <div class="form-row"><div><label>Quantity *</label><input type="text" name="quantity" value="${asset.quantity}" required></div><div><label>Packer Name *</label><input type="text" name="packer" value="${asset.packer}" required></div></div>
-          <div class="form-row" style="margin-bottom:20px;"><div><label>Month *</label><select name="month" required>${monthOpts}</select></div><div><label>WO No. *</label><input type="text" name="woNo" value="${asset.woNo||''}" required></div></div>
+          <div class="form-row"><div><label>Size</label><input type="text" name="size" value="${asset.size || ''}"></div><div><label>Lot No. *</label><input type="text" name="lotNo" value="${asset.lotNo}" required></div></div>
+          <div class="form-row"><div><label>Qty *</label><input type="text" name="quantity" value="${asset.quantity}" required></div><div><label>Packer Name *</label><input type="text" name="packer" value="${asset.packer}" required></div></div>
+          <div class="form-row" style="margin-bottom:20px;"><div><label>Month *</label><select name="month" required>${monthOpts}</select></div><div><label>WO No. *</label><input type="text" name="woNo" value="${asset.woNo || ''}" required></div></div>
           <div style="display:flex;gap:10px;"><button type="submit" class="btn btn-primary" style="flex:1;">${I.edit} Save Changes</button><a href="/labels" class="btn btn-secondary">Cancel</a></div>
         </form>
       </div>
     </div>
   </div>
-  `,'labels')}`);
+  `, 'labels')}`);
 });
 
 app.post('/edit/:id', async (req, res) => {
@@ -1641,10 +1596,12 @@ app.post('/edit/:id', async (req, res) => {
   const oldAsset = await getAsset(oldKey);
   if (!oldAsset) return res.redirect('/labels');
   const { companyName, partNo, partName, size, lotNo, quantity, packer, month, woNo } = req.body;
-  if (!companyName||!partNo||!partName||!lotNo||!quantity||!packer||!month||!woNo) return res.redirect(`/edit/${oldKey}`);
-  const updated = {...oldAsset,companyName:companyName.trim(),partNo:partNo.trim(),partName:partName.trim(),
-    size:size?.trim()||'',lotNo:lotNo.trim(),quantity:quantity.trim(),packer:packer.trim(),
-    month:String(month).padStart(2,'0'),woNo:woNo.trim(),updatedAt:new Date().toISOString()};
+  if (!companyName || !partNo || !partName || !lotNo || !quantity || !packer || !month || !woNo) return res.redirect(`/edit/${oldKey}`);
+  const updated = {
+    ...oldAsset, companyName: companyName.trim(), partNo: partNo.trim(), partName: partName.trim(),
+    size: size?.trim() || '', lotNo: lotNo.trim(), quantity: quantity.trim(), packer: packer.trim(),
+    month: String(month).padStart(2, '0'), woNo: woNo.trim(), updatedAt: new Date().toISOString()
+  };
   await upsertAsset(updated);
   res.redirect(`/edit/${oldKey}?success=1`);
 });
@@ -1652,16 +1609,17 @@ app.post('/edit/:id', async (req, res) => {
 app.get('/list', async (req, res) => {
   if (!isAuthenticated(req)) return res.redirect('/');
   const assets = await getAllAssets();
-  const rows = [...assets.entries()].map(([key,a])=>`<tr>
-    <td><a href="/asset/${key}" class="link">${a.partName||'&mdash;'}</a></td>
-    <td><span class="badge badge-blue">${a.partNo||'&mdash;'}</span></td>
-    <td>${a.companyName||'&mdash;'}</td>
-    <td>${a.lotNo||'&mdash;'}</td>
-    <td>${a.size||'&mdash;'}</td>
-    <td>${a.quantity||'&mdash;'}</td>
-    <td>${a.packer||'&mdash;'}</td>
-    <td style="font-family:monospace;font-size:12px;">${a.woNo||'&mdash;'}</td>
-    <td><span class="badge badge-${(a.scanHistory?.length||0)>0?'green':'gray'}">${a.scanHistory?.length||0}</span></td>
+const rows = [...assets.entries()].map(([key, a]) => `<tr>
+    <td><input type="checkbox" class="asset-select-cb" data-key="${key}" style="width:15px;height:15px;accent-color:#ef4444;cursor:pointer;"></td>
+    <td><a href="/asset/${key}" class="link">${a.partName || '&mdash;'}</a></td>
+    <td><span class="badge badge-blue">${a.partNo || '&mdash;'}</span></td>
+    <td>${a.companyName || '&mdash;'}</td>
+    <td>${a.lotNo || '&mdash;'}</td>
+    <td>${a.size || '&mdash;'}</td>
+    <td>${a.quantity || '&mdash;'}</td>
+    <td>${a.packer || '&mdash;'}</td>
+    <td style="font-family:monospace;font-size:12px;">${a.woNo || '&mdash;'}</td>
+    <td><span class="badge badge-${(a.scanHistory?.length || 0) > 0 ? 'green' : 'gray'}">${a.scanHistory?.length || 0}</span></td>
     <td><div style="display:flex;gap:5px;">
       <a href="/qr/${key}" class="btn btn-secondary btn-sm">${I.qr}</a>
       <a href="/edit/${key}" class="btn btn-warning btn-sm">${I.edit}</a>
@@ -1669,13 +1627,95 @@ app.get('/list', async (req, res) => {
       <a href="/delete/${key}" onclick="return confirm('Delete ${a.partName}?')" class="btn btn-danger btn-sm">${I.trash}</a>
     </div></td>
   </tr>`).join('');
-  res.send(`${HEAD('All Assets')}<body>${LAYOUT(`
-  <div class="page-header"><div><h1 class="page-title">All Assets</h1><p class="page-sub">${assets.size} total record${assets.size!==1?'s':''}</p></div><a href="/generate-form" class="btn btn-primary">${I.plus} New Label</a></div>
-  <div class="card">
-    ${assets.size===0?`<div class="empty">${I.box}<p>No assets yet.</p><a href="/generate-form" class="btn btn-primary">Generate First Label</a></div>`
-    :`<div class="table-wrap"><table><thead><tr><th>Part Name</th><th>Part No.</th><th>Company</th><th>Lot No.</th><th>Size</th><th>Qty</th><th>Packer</th><th>WO No.</th><th>Scans</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table></div>`}
+res.send(`${HEAD('All Assets')}<body>${LAYOUT(`
+  <div class="page-header">
+    <div><h1 class="page-title">All Assets</h1><p class="page-sub">${assets.size} total record${assets.size !== 1 ? 's' : ''}</p></div>
+    <div style="display:flex;gap:8px;">
+      ${assets.size > 0 ? `<button onclick="confirmClearAll()" class="btn btn-danger">${I.trash} Clear All</button>` : ''}
+      <a href="/generate-form" class="btn btn-primary">${I.plus} New Label</a>
+    </div>
   </div>
-  `,'list')}`);
+
+  ${assets.size > 0 ? `
+  <!-- Bulk Delete Bar -->
+  <div class="bulk-bar" id="deleteBar">
+    <div class="bulk-bar-left">${I.trash}<span id="deleteBarCount" class="bulk-bar-count">0 selected</span><span style="color:#94a3b8;">assets selected</span></div>
+    <div class="bulk-bar-right">
+      <button class="btn btn-secondary btn-sm" onclick="clearSelection()">Clear</button>
+      <button class="btn btn-danger btn-sm" id="deleteSelectedBtn" onclick="deleteSelected()">&#x1F5D1; Delete Selected</button>
+    </div>
+  </div>
+
+  <div class="select-all-row">
+    <input type="checkbox" id="selectAllAssets" style="width:16px;height:16px;accent-color:#ef4444;cursor:pointer;">
+    <label for="selectAllAssets" style="cursor:pointer;font-size:13px;font-weight:600;color:#374151;margin-bottom:0;">Select All</label>
+    <span style="font-size:11px;color:#9ca3af;">&mdash; or select individually to delete</span>
+  </div>` : ''}
+
+  <div class="card">
+    ${assets.size === 0
+      ? `<div class="empty">${I.box}<p>No assets yet.</p><a href="/generate-form" class="btn btn-primary">Generate First Label</a></div>`
+      : `<div class="table-wrap"><table>
+          <thead><tr>
+            <th style="width:36px;"></th>
+            <th>Part Name</th><th>Part No.</th><th>Company</th><th>Lot No.</th>
+            <th>Size</th><th>Qty</th><th>Packer</th><th>WO No.</th><th>Scans</th><th>Actions</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table></div>`}
+  </div>
+
+  <script>
+  (function(){
+    function updateBar(){
+      var checked = document.querySelectorAll('.asset-select-cb:checked');
+      var bar = document.getElementById('deleteBar');
+      var count = document.getElementById('deleteBarCount');
+      if(!bar) return;
+      if(checked.length > 0){ bar.classList.add('visible'); count.textContent = checked.length + ' selected'; }
+      else { bar.classList.remove('visible'); }
+    }
+    document.querySelectorAll('.asset-select-cb').forEach(function(cb){
+      cb.addEventListener('change', function(){
+        var row = this.closest('tr');
+        if(this.checked) row.style.background = '#fef2f2';
+        else row.style.background = '';
+        updateBar();
+      });
+    });
+    var saAll = document.getElementById('selectAllAssets');
+    if(saAll) saAll.addEventListener('change', function(){
+      document.querySelectorAll('.asset-select-cb').forEach(function(cb){
+        cb.checked = saAll.checked;
+        var row = cb.closest('tr');
+        row.style.background = saAll.checked ? '#fef2f2' : '';
+      });
+      updateBar();
+    });
+    window.clearSelection = function(){
+      document.querySelectorAll('.asset-select-cb').forEach(function(cb){ cb.checked=false; cb.closest('tr').style.background=''; });
+      if(document.getElementById('selectAllAssets')) document.getElementById('selectAllAssets').checked=false;
+      updateBar();
+    };
+    window.deleteSelected = function(){
+      var keys = [];
+      document.querySelectorAll('.asset-select-cb:checked').forEach(function(cb){ keys.push(cb.dataset.key); });
+      if(keys.length===0) return;
+      if(!confirm('Delete ' + keys.length + ' selected asset' + (keys.length>1?'s':'') + '? This cannot be undone.')) return;
+      Promise.all(keys.map(function(k){ return fetch('/delete-asset/'+k, {method:'POST'}); }))
+        .then(function(){ window.location.reload(); })
+        .catch(function(){ alert('Some deletions failed. Refreshing...'); window.location.reload(); });
+    };
+    window.confirmClearAll = function(){
+      if(!confirm('Delete ALL assets? This will permanently remove all ' + ${assets.size} + ' records and cannot be undone.')) return;
+      if(!confirm('Are you sure? This is irreversible.')) return;
+      fetch('/delete-all-assets', {method:'POST'})
+        .then(function(){ window.location.reload(); })
+        .catch(function(){ alert('Failed. Please try again.'); });
+    };
+  })();
+  </script>
+  `, 'list')}`);
 });
 
 app.get('/labels', async (req, res) => {
@@ -1686,16 +1726,16 @@ app.get('/labels', async (req, res) => {
   for (const [key, a] of assets) {
     const qrText = buildQrContent(a);
     try {
-      const qrDataUrl = await QRCode.toDataURL(qrText, {width:200,margin:1,errorCorrectionLevel:'M'});
-      assetsWithQR[key] = {...a, _qrDataUrl: qrDataUrl};
-      const monthNum = String(a.month||'03').padStart(2,'0');
+      const qrDataUrl = await QRCode.toDataURL(qrText, { width: 300, margin: 1, errorCorrectionLevel: 'M' });
+      assetsWithQR[key] = { ...a, _qrDataUrl: qrDataUrl };
+      const monthNum = String(a.month || '03').padStart(2, '0');
       cards += `<div class="label-card-wrap" data-key="${key}">
         <input type="checkbox" class="label-select-cb" data-key="${key}" title="Select for bulk print">
         <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;">
           <div style="padding:10px;background:#fafafa;border-bottom:1px solid #e5e7eb;">
             <div style="border:2px solid #111;font-family:'Courier New',monospace;font-size:10px;background:#fff;">
               <div style="display:flex;align-items:stretch;border-bottom:1.5px solid #111;">
-                <div style="flex:1;padding:4px 7px;border-right:1.5px solid #111;"><div style="font-size:6px;font-weight:bold;color:#555;">COMPANY</div><div style="font-size:8px;font-weight:bold;">${a.companyName.toUpperCase()}</div></div>
+                <div style="flex:1;padding:4px 7px;border-right:1.5px solid #111;display:flex;align-items:center;"><div style="font-size:8px;font-weight:bold;">${a.companyName.toUpperCase()}</div></div>
                 <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px 7px;border-right:1.5px solid #111;min-width:40px;text-align:center;"><div style="font-size:6px;font-weight:bold;">* AMI *</div><div style="font-size:14px;font-weight:bold;line-height:1;">${monthNum}</div></div>
                 <div style="display:flex;align-items:center;justify-content:center;padding:4px 6px;"><div style="border:1.5px solid #111;padding:2px 3px;font-size:6px;font-weight:bold;line-height:1.3;text-align:center;">ROHS 2<br>FREE</div></div>
               </div>
@@ -1704,22 +1744,20 @@ app.get('/labels', async (req, res) => {
                 <div style="padding:3px 7px;border-left:1.5px solid #111;"><div style="font-size:6px;font-weight:bold;color:#555;">PART NAME</div><div style="font-size:8px;font-weight:bold;">${a.partName}</div></div>
               </div>
               <div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:1.5px solid #111;">
-                <div style="padding:3px 7px;"><div style="font-size:6px;font-weight:bold;color:#555;">SIZE</div><div style="font-size:8px;font-weight:bold;">${a.size||'&mdash;'}</div></div>
+                <div style="padding:3px 7px;"><div style="font-size:6px;font-weight:bold;color:#555;">SIZE</div><div style="font-size:8px;font-weight:bold;">${a.size || '&mdash;'}</div></div>
                 <div style="padding:3px 7px;border-left:1.5px solid #111;"><div style="font-size:6px;font-weight:bold;color:#555;">LOT NO.</div><div style="font-size:8px;font-weight:bold;">${a.lotNo}</div></div>
               </div>
               <div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:1.5px solid #111;">
-                <div style="padding:3px 7px;"><div style="font-size:6px;font-weight:bold;color:#555;">QUANTITY</div><div style="font-size:9px;font-weight:bold;">${a.quantity}</div></div>
+                <div style="padding:3px 7px;"><div style="font-size:6px;font-weight:bold;color:#555;">QTY</div><div style="font-size:9px;font-weight:bold;">${a.quantity}</div></div>
                 <div style="padding:3px 7px;border-left:1.5px solid #111;"><div style="font-size:6px;font-weight:bold;color:#555;">PACKER</div><div style="font-size:8px;font-weight:bold;">${a.packer}</div></div>
               </div>
-              <div style="display:flex;align-items:stretch;min-height:50px;">
-                <div style="border-right:1.5px solid #111;padding:4px 5px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-                  <div style="font-size:5px;font-weight:bold;color:#555;margin-bottom:2px;">QR CODE</div>
-                  <img src="${qrDataUrl}" style="width:38px;height:38px;display:block;">
-                  <div style="font-size:5px;color:#888;margin-top:1px;">SCAN FOR DETAILS</div>
+              <div style="display:flex;align-items:stretch;min-height:56px;">
+                <div style="border-right:1.5px solid #111;padding:4px 5px;display:flex;align-items:center;justify-content:center;">
+                  <img src="${qrDataUrl}" style="width:46px;height:46px;display:block;">
                 </div>
-                <div style="flex:1;padding:5px 7px;display:flex;flex-direction:column;justify-content:center;">
+                <div style="flex:1;padding:5px 7px;display:flex;flex-direction:column;justify-content:center;overflow:hidden;">
                   <div style="font-size:6px;font-weight:bold;color:#555;">WO NO.</div>
-                  <div style="font-size:7px;font-weight:bold;">${a.woNo||'&mdash;'}</div>
+                  <div style="font-size:7px;font-weight:bold;word-break:break-all;overflow-wrap:break-word;">${a.woNo || '&mdash;'}</div>
                 </div>
               </div>
             </div>
@@ -1737,12 +1775,17 @@ app.get('/labels', async (req, res) => {
           </div>
         </div>
       </div>`;
-    } catch{}
+    } catch { }
   }
   res.send(`${HEAD('Labels')}<body>${LAYOUT(`
-  <div class="page-header"><div><h1 class="page-title">Labels</h1><p class="page-sub">${assets.size} label${assets.size!==1?'s':''} stored</p></div><a href="/generate-form" class="btn btn-primary">${I.plus} New Label</a></div>
+  <div class="page-header"><div><h1 class="page-title">Labels</h1><p class="page-sub">${assets.size} label${assets.size !== 1 ? 's' : ''} stored</p></div>
+    <div style="display:flex;gap:8px;">
+      <a href="/bulk-generate" class="btn btn-secondary">${I.bolt} Bulk Generate</a>
+      <a href="/generate-form" class="btn btn-primary">${I.plus} New Label</a>
+    </div>
+  </div>
   ${SCANNER_BANNER}
-  ${assets.size>0?`
+  ${assets.size > 0 ? `
   <div class="bulk-bar" id="bulkBar">
     <div class="bulk-bar-left">${I.print}<span id="bulkBarCount" class="bulk-bar-count">0 selected</span><span style="color:#94a3b8;">labels selected</span></div>
     <div class="bulk-bar-right">
@@ -1757,16 +1800,17 @@ app.get('/labels', async (req, res) => {
   </div>
   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:16px;">${cards}</div>
   ${bulkPrintModalHTML()}
-  `:`<div class="card"><div class="empty">${I.label}<p>No labels yet.</p><a href="/generate-form" class="btn btn-primary">Create First Label</a></div></div>`}
-  `,'labels')}${assets.size>0?bulkPrintScript(assetsWithQR):''}`);
+  ` : `<div class="card"><div class="empty">${I.label}<p>No labels yet.</p><a href="/generate-form" class="btn btn-primary">Create First Label</a></div></div>`}
+  `, 'labels')}${assets.size > 0 ? bulkPrintScript(assetsWithQR) : ''}`);
 });
 
 app.get('/print-label/:id', async (req, res) => {
   if (!isAuthenticated(req)) return res.redirect('/');
   const asset = await getAsset(req.params.id);
   if (!asset) return res.status(404).send('Not found');
-  const qrDataUrl = await QRCode.toDataURL(buildQrContent(asset), {width:300,margin:1,errorCorrectionLevel:'M'});
-  res.send(`${HEAD('Print &mdash; '+asset.partName)}<body>${LAYOUT(`
+  const qrDataUrl = await QRCode.toDataURL(buildQrContent(asset), { width: 400, margin: 1, errorCorrectionLevel: 'M' });
+  const monthNum = String(asset.month || '03').padStart(2, '0');
+  res.send(`${HEAD('Print &mdash; ' + asset.partName)}<body>${LAYOUT(`
   <div class="page-header">
     <div><h1 class="page-title">Print Label</h1><p class="page-sub">${asset.partName} &middot; ${asset.partNo}</p></div>
     <div style="display:flex;gap:8px;">
@@ -1779,22 +1823,22 @@ app.get('/print-label/:id', async (req, res) => {
   <div style="overflow-x:auto;">
     <div class="ami-label">
       <div class="ami-label-header">
-        <div class="ami-label-company"><div style="font-size:9px;font-weight:bold;letter-spacing:0.1em;color:#555;margin-bottom:3px;">COMPANY</div><div class="co-name">${asset.companyName.toUpperCase()}</div></div>
-        <div class="ami-label-amino"><div class="ami-star">* AMI *</div><div class="ami-num">${String(asset.month||'03').padStart(2,'0')}</div></div>
+        <div class="ami-label-company"><div class="co-name">${asset.companyName.toUpperCase()}</div></div>
+        <div class="ami-label-amino"><div class="ami-star">* AMI *</div><div class="ami-num">${monthNum}</div></div>
         <div class="ami-label-rohs"><div class="rohs-box">ROHS 2<br>FREE</div></div>
       </div>
       <div class="ami-field-row cols-2"><div class="ami-field"><div class="f-label">Part No.</div><div class="f-value mono">${asset.partNo}</div></div><div class="ami-field"><div class="f-label">Part Name</div><div class="f-value">${asset.partName}</div></div></div>
-      <div class="ami-field-row cols-2"><div class="ami-field"><div class="f-label">Size</div><div class="f-value">${asset.size||'&mdash;'}</div></div><div class="ami-field"><div class="f-label">Lot No.</div><div class="f-value mono">${asset.lotNo}</div></div></div>
-      <div class="ami-field-row cols-2"><div class="ami-field"><div class="f-label">Quantity</div><div class="f-value large">${asset.quantity}</div></div><div class="ami-field"><div class="f-label">Packer</div><div class="f-value">${asset.packer}</div></div></div>
+      <div class="ami-field-row cols-2"><div class="ami-field"><div class="f-label">Size</div><div class="f-value">${asset.size || '&mdash;'}</div></div><div class="ami-field"><div class="f-label">Lot No.</div><div class="f-value mono">${asset.lotNo}</div></div></div>
+      <div class="ami-field-row cols-2"><div class="ami-field"><div class="f-label">QTY</div><div class="f-value large">${asset.quantity}</div></div><div class="ami-field"><div class="f-label">Packer</div><div class="f-value">${asset.packer}</div></div></div>
       <div class="ami-label-bottom">
-        <div class="ami-qr-cell"><div class="qr-label-text">QR CODE</div><img src="${qrDataUrl}" alt="QR"><div class="qr-scan-text">SCAN FOR DETAILS</div></div>
-        <div class="ami-wo-cell"><div><div class="wo-label">WO NO.</div><div class="wo-value">${asset.woNo}</div></div></div>
+        <div class="ami-qr-cell"><img src="${qrDataUrl}" alt="QR"></div>
+        <div class="ami-wo-cell"><div class="wo-label">WO NO.</div><div class="wo-value">${asset.woNo}</div></div>
       </div>
     </div>
   </div>
   <p style="font-size:12px;color:#64748b;margin-top:8px;">Click <strong>Print Labels</strong> to set layout and print.</p>
   ${printModalHTML()}
-  `,'labels')}${printModalScript(qrDataUrl, asset)}`);
+  `, 'labels')}${printModalScript(qrDataUrl, asset)}`);
 });
 
 app.get('/qr/all', async (req, res) => {
@@ -1803,7 +1847,7 @@ app.get('/qr/all', async (req, res) => {
   let cards = '';
   for (const [key, a] of assets) {
     try {
-      const qr = await QRCode.toDataURL(buildQrContent(a), {width:200,margin:2,errorCorrectionLevel:'M'});
+      const qr = await QRCode.toDataURL(buildQrContent(a), { width: 300, margin: 2, errorCorrectionLevel: 'M' });
       cards += `<div class="card" style="margin-bottom:0;text-align:center;padding:20px;">
         <div style="font-weight:600;color:#111;font-size:13px;margin-bottom:2px;">${a.partName}</div>
         <div style="font-size:11px;color:#9ca3af;margin-bottom:14px;font-family:monospace;">${a.partNo} &middot; ${a.lotNo}</div>
@@ -1814,14 +1858,15 @@ app.get('/qr/all', async (req, res) => {
           <a href="/edit/${key}" class="btn btn-warning btn-sm">${I.edit}</a>
         </div>
       </div>`;
-    } catch{}
+    } catch { }
   }
   res.send(`${HEAD('QR Gallery')}<body>${LAYOUT(`
-  <div class="page-header"><div><h1 class="page-title">QR Gallery</h1><p class="page-sub">${assets.size} label${assets.size!==1?'s':''}</p></div></div>
+  <div class="page-header"><div><h1 class="page-title">QR Gallery</h1><p class="page-sub">${assets.size} label${assets.size !== 1 ? 's' : ''}</p></div></div>
   ${SCANNER_BANNER}
-  ${cards?`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:16px;">${cards}</div>`
-  :`<div class="card"><div class="empty">${I.qr}<p>No QR codes yet.</p><a href="/generate-form" class="btn btn-primary">Create First Label</a></div></div>`}
-  `,'gallery')}`);
+  ${cards
+    ? `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:16px;">${cards}</div>`
+    : `<div class="card"><div class="empty">${I.qr}<p>No QR codes yet.</p><a href="/generate-form" class="btn btn-primary">Create First Label</a></div></div>`}
+  `, 'gallery')}`);
 });
 
 app.get('/asset/:id', async (req, res) => {
@@ -1832,20 +1877,20 @@ app.get('/asset/:id', async (req, res) => {
       <a href="/" class="btn btn-secondary btn-block">Go Home</a>
     </div></div></body></html>`);
   const isAdmin = isAuthenticated(req);
-  if (!isAdmin) await pushScanHistory(req.params.id, {timestamp:new Date().toISOString(),device:req.headers['user-agent']||'Unknown'});
+  if (!isAdmin) await pushScanHistory(req.params.id, { timestamp: new Date().toISOString(), device: req.headers['user-agent'] || 'Unknown' });
   const freshAsset = await getAsset(req.params.id);
   const qrText = buildQrContent(freshAsset);
-  const qrDataUrl = await QRCode.toDataURL(qrText, {width:200,margin:2,errorCorrectionLevel:'M'});
-  const scans = freshAsset.scanHistory?.length||0;
-  const monthNum = String(freshAsset.month||'03').padStart(2,'0');
-  const woNum = freshAsset.woNo||'&mdash;';
-  const scanRows = (freshAsset.scanHistory||[]).slice(-10).reverse().map(s=>`<tr>
-    <td style="font-family:monospace;font-size:12px;">${new Date(s.timestamp).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}</td>
-    <td style="font-size:11px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${(s.device||'Unknown').substring(0,80)}</td>
+  const qrDataUrl = await QRCode.toDataURL(qrText, { width: 300, margin: 2, errorCorrectionLevel: 'M' });
+  const scans = freshAsset.scanHistory?.length || 0;
+  const monthNum = String(freshAsset.month || '03').padStart(2, '0');
+  const woNum = freshAsset.woNo || '&mdash;';
+  const scanRows = (freshAsset.scanHistory || []).slice(-10).reverse().map(s => `<tr>
+    <td style="font-family:monospace;font-size:12px;">${new Date(s.timestamp).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</td>
+    <td style="font-size:11px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${(s.device || 'Unknown').substring(0, 80)}</td>
   </tr>`).join('');
 
   if (isAdmin) {
-    const printQrUrl = await QRCode.toDataURL(qrText, {width:300,margin:1,errorCorrectionLevel:'M'});
+    const printQrUrl = await QRCode.toDataURL(qrText, { width: 400, margin: 1, errorCorrectionLevel: 'M' });
     return res.send(`${HEAD(freshAsset.partName)}<body>${LAYOUT(`
     <div class="page-header">
       <div><h1 class="page-title">${freshAsset.partName}</h1><p class="page-sub">${freshAsset.companyName} &middot; <span class="badge badge-blue">${freshAsset.partNo}</span></p></div>
@@ -1860,24 +1905,24 @@ app.get('/asset/:id', async (req, res) => {
     <div class="grid-aside">
       <div>
         <div class="card">
-          <div class="card-header"><span class="card-title">Part Details</span><span class="badge badge-${scans>0?'green':'gray'}">${scans} scan${scans!==1?'s':''}</span></div>
+          <div class="card-header"><span class="card-title">Part Details</span><span class="badge badge-${scans > 0 ? 'green' : 'gray'}">${scans} scan${scans !== 1 ? 's' : ''}</span></div>
           <div class="card-body"><div class="detail-grid">
             <div style="grid-column:1/-1;"><div class="detail-label">Company</div><div class="detail-value">${freshAsset.companyName}</div></div>
             <div><div class="detail-label">Part No.</div><div class="detail-value" style="font-family:monospace;font-size:13px;">${freshAsset.partNo}</div></div>
             <div><div class="detail-label">Part Name</div><div class="detail-value">${freshAsset.partName}</div></div>
             <div><div class="detail-label">Lot No.</div><div class="detail-value" style="font-family:monospace;font-size:13px;">${freshAsset.lotNo}</div></div>
-            <div><div class="detail-label">Size</div><div class="detail-value">${freshAsset.size||'&mdash;'}</div></div>
-            <div><div class="detail-label">Quantity</div><div class="detail-value">${freshAsset.quantity}</div></div>
+            <div><div class="detail-label">Size</div><div class="detail-value">${freshAsset.size || '&mdash;'}</div></div>
+            <div><div class="detail-label">Qty</div><div class="detail-value">${freshAsset.quantity}</div></div>
             <div><div class="detail-label">Packer</div><div class="detail-value">${freshAsset.packer}</div></div>
             <div><div class="detail-label">Month (AMI)</div><div class="detail-value">${monthNum}</div></div>
-            <div><div class="detail-label">WO No.</div><div class="detail-value" style="font-family:monospace;font-size:13px;">${woNum}</div></div>
-            <div><div class="detail-label">Created</div><div class="detail-value" style="font-size:13px;">${new Date(freshAsset.createdAt).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}</div></div>
+            <div><div class="detail-label">WO No.</div><div class="detail-value" style="font-family:monospace;font-size:13px;word-break:break-all;">${woNum}</div></div>
+            <div><div class="detail-label">Created</div><div class="detail-value" style="font-size:13px;">${new Date(freshAsset.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</div></div>
           </div></div>
         </div>
-        ${scans>0?`<div class="card">
+        ${scans > 0 ? `<div class="card">
           <div class="card-header"><span class="card-title">Scan History</span><span class="badge badge-green">${scans} total</span></div>
           <div class="table-wrap"><table><thead><tr><th>Timestamp</th><th>Device</th></tr></thead><tbody>${scanRows}</tbody></table></div>
-        </div>`:''}
+        </div>` : ''}
       </div>
       <div>
         <div class="card">
@@ -1891,10 +1936,9 @@ app.get('/asset/:id', async (req, res) => {
       </div>
     </div>
     ${printModalHTML()}
-    `,'list')}${printModalScript(printQrUrl, freshAsset)}`);
+    `, 'list')}${printModalScript(printQrUrl, freshAsset)}`);
   }
 
-  // Public view
   res.send(`<!DOCTYPE html><html lang="en"><head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${freshAsset.partName} &mdash; AMI</title>
@@ -1909,7 +1953,7 @@ app.get('/asset/:id', async (req, res) => {
   .ami-label{width:100%;max-width:560px;border:2.5px solid #111;font-family:'Courier New',monospace;background:#fff;color:#111;}
   .ami-label *{box-sizing:border-box;}
   .ami-label-header{display:flex;align-items:stretch;border-bottom:2px solid #111;}
-  .ami-label-company{flex:1;padding:8px 14px;border-right:2px solid #111;}
+  .ami-label-company{flex:1;padding:8px 14px;border-right:2px solid #111;display:flex;align-items:center;}
   .ami-label-company .co-name{font-size:13px;font-weight:bold;line-height:1.3;}
   .ami-label-amino{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 18px;border-right:2px solid #111;min-width:80px;text-align:center;}
   .ami-label-amino .ami-star{font-size:10px;font-weight:bold;letter-spacing:0.12em;}
@@ -1924,14 +1968,12 @@ app.get('/asset/:id', async (req, res) => {
   .ami-field .f-value{font-size:15px;font-weight:bold;}
   .ami-field .f-value.mono{font-family:'Courier New',monospace;}
   .ami-field .f-value.large{font-size:18px;}
-  .ami-label-bottom{display:flex;align-items:stretch;min-height:110px;}
-  .ami-qr-cell{border-right:1.5px solid #111;padding:10px 12px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:115px;}
-  .ami-qr-cell .qr-label-text{font-size:8px;font-weight:bold;letter-spacing:0.1em;color:#555;margin-bottom:5px;}
-  .ami-qr-cell img{width:88px;height:88px;display:block;}
-  .ami-qr-cell .qr-scan-text{font-size:7px;color:#888;margin-top:4px;}
-  .ami-wo-cell{flex:1;padding:12px 16px;display:flex;flex-direction:column;justify-content:center;gap:4px;}
+  .ami-label-bottom{display:flex;align-items:stretch;min-height:130px;}
+  .ami-qr-cell{border-right:1.5px solid #111;padding:8px 10px;display:flex;align-items:center;justify-content:center;min-width:130px;}
+  .ami-qr-cell img{width:108px;height:108px;display:block;}
+  .ami-wo-cell{flex:1;padding:12px 16px;display:flex;flex-direction:column;justify-content:center;gap:4px;overflow:hidden;}
   .wo-label{font-size:9px;font-weight:bold;letter-spacing:0.1em;color:#555;}
-  .wo-value{font-size:13px;font-weight:bold;font-family:'Courier New',monospace;}
+  .wo-value{font-size:13px;font-weight:bold;font-family:'Courier New',monospace;word-break:break-all;overflow-wrap:break-word;}
   </style></head><body>
   <div class="sw">
     <div class="tb">
@@ -1939,19 +1981,19 @@ app.get('/asset/:id', async (req, res) => {
         <div class="bd"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg></div>
         AMI QR System
       </div>
-      <div class="sb"><span class="sd"></span>${scans} scan${scans!==1?'s':''}</div>
+      <div class="sb"><span class="sd"></span>${scans} scan${scans !== 1 ? 's' : ''}</div>
     </div>
     <div class="ami-label">
       <div class="ami-label-header">
-        <div class="ami-label-company"><div style="font-size:8px;font-weight:bold;color:#555;margin-bottom:2px;">COMPANY</div><div class="co-name">${freshAsset.companyName.toUpperCase()}</div></div>
+        <div class="ami-label-company"><div class="co-name">${freshAsset.companyName.toUpperCase()}</div></div>
         <div class="ami-label-amino"><div class="ami-star">* AMI *</div><div class="ami-num">${monthNum}</div></div>
         <div class="ami-label-rohs"><div class="rohs-box">ROHS 2<br>FREE</div></div>
       </div>
       <div class="ami-field-row cols-2"><div class="ami-field"><div class="f-label">Part No.</div><div class="f-value mono">${freshAsset.partNo}</div></div><div class="ami-field"><div class="f-label">Part Name</div><div class="f-value">${freshAsset.partName}</div></div></div>
-      <div class="ami-field-row cols-2"><div class="ami-field"><div class="f-label">Size</div><div class="f-value">${freshAsset.size||'&mdash;'}</div></div><div class="ami-field"><div class="f-label">Lot No.</div><div class="f-value mono">${freshAsset.lotNo}</div></div></div>
-      <div class="ami-field-row cols-2"><div class="ami-field"><div class="f-label">Quantity</div><div class="f-value large">${freshAsset.quantity}</div></div><div class="ami-field"><div class="f-label">Packer</div><div class="f-value">${freshAsset.packer}</div></div></div>
+      <div class="ami-field-row cols-2"><div class="ami-field"><div class="f-label">Size</div><div class="f-value">${freshAsset.size || '&mdash;'}</div></div><div class="ami-field"><div class="f-label">Lot No.</div><div class="f-value mono">${freshAsset.lotNo}</div></div></div>
+      <div class="ami-field-row cols-2"><div class="ami-field"><div class="f-label">QTY</div><div class="f-value large">${freshAsset.quantity}</div></div><div class="ami-field"><div class="f-label">Packer</div><div class="f-value">${freshAsset.packer}</div></div></div>
       <div class="ami-label-bottom">
-        <div class="ami-qr-cell"><div class="qr-label-text">QR CODE</div><img src="${qrDataUrl}" alt="QR"><div class="qr-scan-text">SCAN FOR DETAILS</div></div>
+        <div class="ami-qr-cell"><img src="${qrDataUrl}" alt="QR"></div>
         <div class="ami-wo-cell"><div class="wo-label">WO NO.</div><div class="wo-value">${woNum}</div></div>
       </div>
     </div>
@@ -1963,8 +2005,8 @@ app.get('/qr/:id', async (req, res) => {
   if (!isAuthenticated(req)) return res.redirect('/');
   const asset = await getAsset(req.params.id);
   if (!asset) return res.status(404).send('Not found');
-  const qr = await QRCode.toDataURL(buildQrContent(asset), {width:300,margin:2,errorCorrectionLevel:'M'});
-  res.send(`${HEAD('QR &mdash; '+asset.partName)}<body>${LAYOUT(`
+  const qr = await QRCode.toDataURL(buildQrContent(asset), { width: 400, margin: 2, errorCorrectionLevel: 'M' });
+  res.send(`${HEAD('QR &mdash; ' + asset.partName)}<body>${LAYOUT(`
   <div class="page-header"><div><h1 class="page-title">QR Code</h1><p class="page-sub">${asset.partName} &middot; ${asset.partNo}</p></div></div>
   ${SCANNER_BANNER}
   <div style="max-width:300px;">
@@ -1975,14 +2017,14 @@ app.get('/qr/:id', async (req, res) => {
       <a href="/qr/${req.params.id}/download" class="btn btn-primary btn-block">${I.download} Download PNG</a>
     </div></div>
   </div>
-  `,'gallery')}`);
+  `, 'gallery')}`);
 });
 
 app.get('/qr/:id/download', async (req, res) => {
   const asset = await getAsset(req.params.id);
   if (!asset) return res.status(404).send('Not found');
   try {
-    const buf = await QRCode.toBuffer(buildQrContent(asset), {width:600,margin:3,errorCorrectionLevel:'M'});
+    const buf = await QRCode.toBuffer(buildQrContent(asset), { width: 600, margin: 3, errorCorrectionLevel: 'M' });
     res.setHeader('Content-Disposition', `attachment; filename=qr-${asset.partNo}-${asset.lotNo}.png`);
     res.type('image/png').send(buf);
   } catch { res.status(500).send('Error'); }
@@ -1993,7 +2035,17 @@ app.get('/delete/:id', async (req, res) => {
   await deleteAsset(req.params.id);
   res.redirect('/list');
 });
+app.post('/delete-asset/:id', async (req, res) => {
+  if (!isAuthenticated(req)) return res.status(401).json({ error: 'Unauthorized' });
+  await deleteAsset(req.params.id);
+  res.json({ success: true });
+});
 
+app.post('/delete-all-assets', async (req, res) => {
+  if (!isAuthenticated(req)) return res.status(401).json({ error: 'Unauthorized' });
+  await Asset.deleteMany({});
+  res.json({ success: true });
+});
 app.get('/scan', (req, res) => {
   res.send(`${HEAD('Scan QR')}<body style="background:#f5f6fa;">
   <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;">
@@ -2059,12 +2111,12 @@ app.get('/scan', (req, res) => {
 
 app.get('/api/asset/:id', async (req, res) => {
   const asset = await getAsset(req.params.id);
-  if (!asset) return res.status(404).json({error:'Not found'});
+  if (!asset) return res.status(404).json({ error: 'Not found' });
   res.json(asset);
 });
 
 app.get('/api/network-info', (req, res) => {
-  res.json({detectedIP:getLocalNetworkIP(),port,localUrl:`http://${getLocalNetworkIP()}:${port}`,resolvedBaseUrl:getBaseUrl(req)});
+  res.json({ detectedIP: getLocalNetworkIP(), port, localUrl: `http://${getLocalNetworkIP()}:${port}`, resolvedBaseUrl: getBaseUrl(req) });
 });
 
 app.listen(port, '0.0.0.0', () => {
