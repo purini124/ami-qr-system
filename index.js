@@ -93,7 +93,8 @@ function getBaseUrl(req) {
   return `http://${getLocalNetworkIP()}:${port}`;
 }
 function buildQrContent(asset) {
-  return `COMPANY:${asset.companyName},PARTNO:${asset.partNo},LOT:${asset.lotNo},QTY:${asset.quantity},PACKER:${asset.packer}`;
+  return `COMPANY\tPARTNO\tPARTNAME\tLOT\tQTY\tPACKER\n` +
+         `${asset.companyName}\t${asset.partNo}\t${asset.partName}\t${asset.lotNo}\t${asset.quantity}\t${asset.packer}`;
 }
 function generateAssetKey(partNo, lotNo) {
   const base = partNo.trim() + '-' + lotNo.trim();
